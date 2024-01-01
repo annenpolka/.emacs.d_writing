@@ -9,6 +9,9 @@ tramp
 .\#*
 eln-cache/
 elpaca/
+tutorial/
+eshell/
+url/
 
 # Org-mode
 .org-id-locations
