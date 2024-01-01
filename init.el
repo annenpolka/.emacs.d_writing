@@ -47,4 +47,64 @@
   (setq elpaca-use-package-by-default t))
 (elpaca-wait)
 
-;; End:
+(use-package fontaine
+  :init
+  (setq fontaine-presets
+        '((tiny
+           :default-height 70)
+          (small
+           :default-height 90)
+          (regular
+           :default-height 120)
+          (medium
+           :default-height 130)
+          (large
+           :default-weight semilight
+           :default-height 140
+           :bold-weight extrabold)
+          (presentation
+           :default-weight semilight
+           :default-height 170
+           :bold-weight extrabold)
+          (jumbo
+           :default-weight semilight
+           :default-height 220
+           :bold-weight extrabold)
+          (t ; shared fallback properties
+           ;; I keep all properties for didactic purposes, but most can be
+           ;; omitted.  See the fontaine manual for the technicalities:
+           ;; <https://protesilaos.com/emacs/fontaine>.
+           :default-family "Iosevka Term"
+           :default-weight regular
+           :default-height 120
+           :fixed-pitch-family nil ; falls back to :default-family
+           :fixed-pitch-weight nil ; falls back to :default-weight
+           :fixed-pitch-height 1.0
+           :fixed-pitch-serif-family nil ; falls back to :default-family
+           :fixed-pitch-serif-weight nil ; falls back to :default-weight
+           :fixed-pitch-serif-height 1.0
+           :variable-pitch-family "Iosevka"
+           :variable-pitch-weight nil
+           :variable-pitch-height 1.0
+           :bold-family nil ; use whatever the underlying face has
+           :bold-weight bold
+           :italic-family nil
+           :italic-slant italic
+           :line-spacing nil)))
+  ;; Recover last preset or fall back to desired style from
+  ;; `fontaine-presets'.
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+
+  ;; The other side of `fontaine-restore-latest-preset'.
+  (add-hook 'kill-emacs-hook #'fontaine-store-latest-preset)
+
+  ;; set japanese font manually
+  (defun set-japanese-font-face nil
+    (set-fontset-font t 'japanese-jisx0208 (font-spec :family "migu 1P")))
+  (set-japanese-font-face)
+  :hook
+  ;; hook for daemon mode
+  (server-after-make-frame-hook . set-japanese-font-face)
+  :bind
+  ("C-c F" . fontaine-set-preset))
+;;End;
