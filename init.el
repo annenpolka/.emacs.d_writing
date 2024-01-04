@@ -92,6 +92,39 @@
 (use-package mozc-popup
   :after mozc)
 
+
+(defun my-get-auth-info (service keyword)
+  "特定のサービスに対する認証情報を `auth-source` から取得する関数。
+   もし見つからない場合はユーザーに入力を求め、`auth-sources` に基づいてファイルに書き出す。"
+  (let ((match (car (auth-source-search :host service :require `(,keyword))))
+        (source-file (car auth-sources)))
+
+    (if match
+        ;; 認証情報が見つかった場合
+        (funcall (plist-get match keyword))
+      ;; 認証情報が見つからなかった場合、ユーザーに入力を求める
+      (let ((new-value (read-passwd (format "Enter your %s for %s: " keyword service))))
+        (when source-file
+          ;; ファイルに書き出す
+          (with-temp-buffer
+            (insert "machine " service " " (substring (symbol-name keyword) 1) " " new-value "\n")
+            (if (string-suffix-p ".gpg" source-file)
+                (epa-encrypt-file (buffer-string) source-file)
+              (append-to-file (point-min) (point-max) source-file))))
+        new-value))))
+
+;; (use-package sumibi
+;;   :custom
+;;   (sumibi-current-model "gpt-4-1106-preview")
+;;   (sumibi-model-list '("gpt-3.5-turbo" "gpt-4-1106-preview"))
+;;   :init
+;;   (setq emacs-minor-version 1)
+;;   (setenv "OPENAI_API_KEY" (my-get-auth-info "api.openai.com" :secret))
+;;   :config
+;;   (global-sumibi-mode 1))
+
+(elpaca-wait)
+
 (use-package fontaine
   :init
   (setq fontaine-presets
