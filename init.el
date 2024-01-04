@@ -47,6 +47,47 @@
   (setq elpaca-use-package-by-default t))
 (elpaca-wait)
 
+;; IME Patch
+;; (use-package tr-ime
+;;   :if (eq window-system 'w32)
+;;   :config
+;;   (tr-ime-advanced-install)
+;;   (setq default-input-method "W32-IME")
+;;   (modify-all-frames-parameters '((ime-font . "Migu 1P-12")))
+;;   (w32-ime-initialize)
+;;   ;; IME 制御（yes/no などの入力の時に IME を off にする）
+;;   (wrap-function-to-control-ime 'universal-argument t nil)
+;;   (wrap-function-to-control-ime 'read-string nil nil)
+;;   (wrap-function-to-control-ime 'read-char nil nil)
+;;   (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
+;;   (wrap-function-to-control-ime 'y-or-n-p nil nil)
+;;   (wrap-function-to-control-ime 'yes-or-no-p nil nil)
+;;   (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
+;;   (wrap-function-to-control-ime 'register-read-with-preview nil nil))
+
+(defun install-package-with-scoop-if-not-exist (command package bucket)
+  "コマンドがシステムに存在しない場合に、Scoopを使って指定したPACKAGEをインストールする。必要ならBUCKETを追加する。"
+  (unless (executable-find command)
+    (let ((search-result (shell-command-to-string (format "scoop search %s" package))))
+      (when (string-match "No matches found" search-result)
+        (shell-command (format "scoop bucket add %s" bucket)))
+      (shell-command (format "scoop install %s" package)))))
+
+
+(use-package mozc
+  :demand t
+  :bind*
+  (("<zenkaku-hankaku>" . toggle-input-method)
+  ("<eisu-toggle>" . toggle-input-method))
+  :config
+  (setq default-input-method "japanese-mozc-im")
+  (setq mozc-candidate-style 'popup)
+  )
+(use-package mozc-im
+  :after mozc)
+(use-package mozc-popup
+  :after mozc)
+
 (use-package fontaine
   :init
   (setq fontaine-presets
