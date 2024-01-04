@@ -113,6 +113,46 @@
               (append-to-file (point-min) (point-max) source-file))))
         new-value))))
 
+;; set builtin configs
+(use-package emacs
+  :elpaca nil
+  :ensure nil
+  :bind (("M-ESC ESC" . c/redraw-frame))
+  :init
+  (defun c/redraw-frame nil
+    (interactive)
+    (redraw-frame))
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (define-key key-translation-map [?\C-h] [?\C-?])
+  (global-set-key (kbd "C-?") 'help-for-help)
+  (define-key input-decode-map [?\C-i] [C-i])
+  :config
+  (setopt user-full-name "annenpolka"
+        user-mail-address "lancelbb@gmail.com"
+        user-login-name "annenpolka"
+        backup-directory-alist '((".*" . "~/.backup"))
+        create-lockfiles nil
+        debug-on-error nil
+        init-file-debug nil
+        frame-resize-pixelwise t
+        enable-recursive-minibuffers t
+        history-length 1000
+        history-delete-duplicates t
+        scroll-preserve-screen-position t
+        scroll-conservatively 100
+        mouse-wheel-scroll-amount '(1 ((control) . 5))
+        ring-bell-function 'ignore
+        text-quoting-style 'straight
+        truncate-lines t
+        completion-cycle-threshold 3
+        tab-always-indent 'complete
+        scroll-bar-mode nil
+        indent-tabs-mode nil
+        vc-follow-symlinks t
+        select-enable-primary nil
+        show-paren-style 'parenthesis
+        bookmark-watch-bookmark-file 'silent))
+
 ;; japanese input method
 (use-package mozc
   :demand t
