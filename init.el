@@ -82,6 +82,10 @@
   :config
   (setq default-input-method "japanese-mozc-im")
   (setq mozc-candidate-style 'popup)
+  (advice-add 'mozc-session-execute-command
+              :after (lambda (&rest args)
+                       (when (eq (nth 0 args) 'CreateSession)
+                         (mozc-session-sendkey '(Hankaku/Zenkaku)))))
   )
 (use-package mozc-im
   :after mozc)
