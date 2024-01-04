@@ -113,6 +113,26 @@
               (append-to-file (point-min) (point-max) source-file))))
         new-value))))
 
+;; japanese input method
+(use-package mozc
+  :demand t
+  :bind*
+  (("<zenkaku-hankaku>" . toggle-input-method)
+  ("<eisu-toggle>" . toggle-input-method))
+  :config
+  (setq default-input-method "japanese-mozc-im")
+  (setq mozc-candidate-style 'popup)
+  (advice-add 'mozc-session-execute-command
+              :after (lambda (&rest args)
+                       (when (eq (nth 0 args) 'CreateSession)
+                         (mozc-session-sendkey '(Hankaku/Zenkaku)))))
+  )
+(use-package mozc-im
+  :after mozc)
+(use-package mozc-popup
+  :after mozc)
+
+;; gpt-based ime
 ;; (use-package sumibi
 ;;   :custom
 ;;   (sumibi-current-model "gpt-4-1106-preview")
