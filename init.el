@@ -156,6 +156,12 @@
         select-enable-primary nil
         show-paren-style 'parenthesis
         bookmark-watch-bookmark-file 'silent))
+(use-package savehist
+  :elpaca nil
+  :init
+  (savehist-mode 1)
+  :config
+  (setq savehist-coding-system 'utf-8-emacs))
 
 ;; japanese input method
 (use-package mozc
