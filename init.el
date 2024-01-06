@@ -47,6 +47,10 @@
   (setq elpaca-use-package-by-default t))
 (elpaca-wait)
 
+;; :diminish support
+(use-package diminish)
+(elpaca-wait)
+
 ;; IME Patch
 ;; (use-package tr-ime
 ;;   :if (eq window-system 'w32)
