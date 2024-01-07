@@ -306,4 +306,15 @@
   (server-after-make-frame-hook . set-japanese-font-face)
   :bind
   ("C-c F" . fontaine-set-preset))
+
+;; scroll with cursor
+(use-package centered-cursor-mode
+  :ensure t
+  :diminish centered-cursor-mode
+  :config
+  (global-centered-cursor-mode t)
+  (setq ccm-step-size 2)
+  ;; exclude on vterm
+  (add-to-list 'ccm-ignored-commands 'vterm--self-insert))
+
 ;;End;
