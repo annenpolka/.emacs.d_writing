@@ -51,6 +51,18 @@
 (use-package diminish)
 (elpaca-wait)
 
+;; garbage collection
+(use-package gcmh
+  :ensure t
+  :diminish gcmh-mode
+  :hook (windows-startup-hook . gcmh-mode)
+  :custom
+  (gcmh-verbose . t)
+  :config
+  (setq gcmh-idle-delay 'auto  ; default is 15s
+        gcmh-auto-idle-delay-factor 10
+        gcmh-high-cons-threshold (* 16 1024 1024)))  ; 16mb
+
 ;; IME Patch
 ;; (use-package tr-ime
 ;;   :if (eq window-system 'w32)
