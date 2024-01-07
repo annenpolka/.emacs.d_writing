@@ -426,4 +426,15 @@
   :config
   (meow-setup)
   (meow-global-mode 1))
+
+;; better undo/redo
+(use-package undo-fu
+  :ensure t
+  :bind
+  ([remap undo] . undo-fu-only-undo)
+  ([remap redo] . undo-fu-only-redo))
+(use-package undo-fu-session
+  :ensure t
+  :config
+  (global-undo-fu-session-mode 1))
 ;;End;
