@@ -147,6 +147,7 @@
   (setopt user-full-name "annenpolka"
         user-mail-address "lancelbb@gmail.com"
         user-login-name "annenpolka"
+        default-directory "~/"
         backup-directory-alist '((".*" . "~/.backup"))
         create-lockfiles nil
         debug-on-error nil
