@@ -310,6 +310,22 @@
   :bind
   ("C-c F" . fontaine-set-preset))
 
+;; restore window layout
+(use-package winner
+  :elpaca nil
+  :bind
+  (("C-z" . winner-undo)
+   ("C-S-z" . winner-redo))
+  :config
+  (winner-mode 1))
+
+;; zoom focused window
+(use-package zoom
+  :config
+  (setq zoom-size '(0.618 . 0.618)
+        zoom-ignored-major-modes '(dirvish-mode))
+  (zoom-mode 1))
+
 ;; scroll with cursor
 (use-package centered-cursor-mode
   :ensure t
