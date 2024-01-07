@@ -216,6 +216,10 @@
   :after mozc)
 (use-package mozc-popup
   :after mozc)
+(use-package mozc-temp
+  :bind
+  ("C-j" . mozc-temp-convert-dwim)
+  :after mozc)
 
 ;; gpt-based ime
 ;; (use-package sumibi
