@@ -156,6 +156,41 @@
         select-enable-primary nil
         show-paren-style 'parenthesis
         bookmark-watch-bookmark-file 'silent))
+
+;; move-or-create-window functions
+(use-package emacs
+  :elpaca nil
+  :ensure nil
+  :init
+  (defun move-or-create-window-above nil
+    "Move to the window above the current one, or create a new split if none exists."
+    (interactive)
+    (unless (window-in-direction 'above)
+      (split-window-below))
+    (windmove-up))
+
+(defun move-or-create-window-below nil
+  "Move to the window below the current one, or create a new split if none exists."
+  (interactive)
+  (unless (window-in-direction 'below)
+    (split-window-vertically))
+  (windmove-down))
+
+(defun move-or-create-window-left nil
+  "Move to the window to the left of the current one, or create a new split if none exists."
+  (interactive)
+  (unless (window-in-direction 'left)
+    (split-window-right))
+  (windmove-left))
+
+(defun move-or-create-window-right nil
+  "Move to the window to the right of the current one, or create a new split if none exists."
+  (interactive)
+  (unless (window-in-direction 'right)
+    (split-window-horizontally))
+  (windmove-right))
+)
+
 (use-package savehist
   :elpaca nil
   :init
