@@ -310,6 +310,37 @@
   :bind
   ("C-c F" . fontaine-set-preset))
 
+
+;; ==============================
+;; minibuffer/completion
+;; ==============================
+
+
+;; vertical completion ui
+(use-package vertico
+  :init
+  (setq vertico-cycle t)
+  :config
+  (vertico-mode t)
+  ;; Use `consult-completion-in-region' if Vertico is enabled.
+  ;; Otherwise use the default `completion--in-region' function.
+  (setq completion-in-region-function
+        (lambda (&rest args)
+          (apply (if vertico-mode
+                     #'consult-completion-in-region
+                   #'completion--in-region)
+                 args))))
+
+;; Enable rich annotations using the Marginalia package
+(use-package marginalia
+  ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+  ;; available in the *Completions* buffer, add it to the
+  ;; `completion-list-mode-map'.
+  :bind (:map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :init
+  (marginalia-mode))
+
 ;; restore window layout
 (use-package winner
   :elpaca nil
