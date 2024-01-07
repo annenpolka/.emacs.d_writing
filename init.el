@@ -142,6 +142,7 @@
   (define-key key-translation-map [?\C-h] [?\C-?])
   (global-set-key (kbd "C-?") 'help-for-help)
   (define-key input-decode-map [?\C-i] [C-i])
+  (show-paren-mode 1)
   :config
   (setopt user-full-name "annenpolka"
         user-mail-address "lancelbb@gmail.com"
@@ -167,6 +168,7 @@
         vc-follow-symlinks t
         select-enable-primary nil
         show-paren-style 'parenthesis
+        show-paren-delay 0
         bookmark-watch-bookmark-file 'silent))
 
 ;; move-or-create-window functions
