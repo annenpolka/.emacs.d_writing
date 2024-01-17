@@ -218,6 +218,20 @@
   :config
   (setq savehist-coding-system 'utf-8-emacs))
 
+;; garbage collection
+(use-package gcmh
+  :diminish gcmh-mode
+  :hook (windows-startup-hook . gcmh-mode)
+  :config
+  (setq gcmh-verbose t
+        gcmh-idle-delay 'auto  ; default is 15s
+        gcmh-auto-idle-delay-factor 10
+        gcmh-high-cons-threshold (* 16 1024 1024)))  ; 16mb
+
+;; ==============================
+;; IME
+;; ==============================
+
 ;; japanese input method
 (use-package mozc
   :demand t
