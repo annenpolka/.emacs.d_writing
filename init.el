@@ -49,19 +49,24 @@
 
 ;; :diminish support
 (use-package diminish)
-(elpaca-wait)
 
-;; garbage collection
-(use-package gcmh
-  :ensure t
-  :diminish gcmh-mode
-  :hook (windows-startup-hook . gcmh-mode)
-  :custom
-  (gcmh-verbose . t)
+;; double-key binding support
+(use-package key-chord
   :config
-  (setq gcmh-idle-delay 'auto  ; default is 15s
-        gcmh-auto-idle-delay-factor 10
-        gcmh-high-cons-threshold (* 16 1024 1024)))  ; 16mb
+  (setq key-chord-two-keys-delay 0.1
+        key-chord-one-keys-delay 0.2)
+  (key-chord-mode 1))
+
+;; consitent custom file paths
+(use-package no-littering
+  :init
+  (setq no-littering-etc-directory
+        (expand-file-name "config/" user-emacs-directory))
+  (setq no-littering-var-directory
+        (expand-file-name "data/" user-emacs-directory))
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
+(elpaca-wait)
 
 ;; IME Patch
 ;; (use-package tr-ime
