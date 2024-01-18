@@ -348,6 +348,12 @@
 ;; ==============================
 ;; minibuffer/completion
 ;; ==============================
+;; lisp
+(use-package parinfer-rust-mode
+  :hook (emacs-lisp-mode . parinfer-rust-mode)
+  :init
+  (setq parinfer-rust-auto-download t
+        parinfer-rust-library-directory (no-littering-expand-var-file-name "parinfer-rust/")))
 
 
 ;; vertical completion ui
