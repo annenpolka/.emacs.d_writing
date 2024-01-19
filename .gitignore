@@ -12,6 +12,7 @@ elpaca/
 tutorial/
 eshell/
 url/
+data/
 
 # Org-mode
 .org-id-locations
