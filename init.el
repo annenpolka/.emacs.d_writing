@@ -103,7 +103,6 @@
    もし見つからない場合はユーザーに入力を求め、`auth-sources` に基づいてファイルに書き出す。"
   (let ((match (car (auth-source-search :host service :require `(,keyword))))
         (source-file (car auth-sources)))
-
     (if match
         ;; 認証情報が見つかった場合
         (funcall (plist-get match keyword))
