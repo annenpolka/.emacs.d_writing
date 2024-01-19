@@ -1,5 +1,8 @@
 ;; Annenpolka init.el -*- lexical-binding: t; -*-
 
+;; ==============================
+;; Package Management/initialization
+;; ==============================
 ;; Install elpaca
 (setq elpaca-core-date '(20231228))
 (defvar elpaca-installer-version 0.6)
@@ -86,33 +89,14 @@
 ;;   (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
 ;;   (wrap-function-to-control-ime 'register-read-with-preview nil nil))
 
-(defun install-package-with-scoop-if-not-exist (command package bucket)
+(defun install-package-with-scoop (command package bucket)
   "コマンドがシステムに存在しない場合に、Scoopを使って指定したPACKAGEをインストールする。必要ならBUCKETを追加する。"
-  (unless (executable-find command)
-    (let ((search-result (shell-command-to-string (format "scoop search %s" package))))
-      (when (string-match "No matches found" search-result)
-        (shell-command (format "scoop bucket add %s" bucket)))
-      (shell-command (format "scoop install %s" package)))))
-
-
-(use-package mozc
-  :demand t
-  :bind*
-  (("<zenkaku-hankaku>" . toggle-input-method)
-  ("<eisu-toggle>" . toggle-input-method))
-  :config
-  (setq default-input-method "japanese-mozc-im")
-  (setq mozc-candidate-style 'popup)
-  (advice-add 'mozc-session-execute-command
-              :after (lambda (&rest args)
-                       (when (eq (nth 0 args) 'CreateSession)
-                         (mozc-session-sendkey '(Hankaku/Zenkaku)))))
-  )
-(use-package mozc-im
-  :after mozc)
-(use-package mozc-popup
-  :after mozc)
-
+  (when IS-WINDOWS
+    (unless (executable-find command)
+      (let ((search-result (shell-command-to-string (format "scoop search %s" package))))
+        (when (string-match "No matches found" search-result)
+          (shell-command (format "scoop bucket add %s" bucket)))
+        (shell-command (format "scoop install %s" package))))))
 
 (defun my-get-auth-info (service keyword)
   "特定のサービスに対する認証情報を `auth-source` から取得する関数。
@@ -149,7 +133,7 @@
   (define-key input-decode-map [?\C-i] [C-i])
   (show-paren-mode 1)
   :config
-  (setopt user-full-name "annenpolka"
+  (setq user-full-name "annenpolka"
         user-mail-address "lancelbb@gmail.com"
         user-login-name "annenpolka"
         default-directory "~/"
@@ -189,27 +173,26 @@
       (split-window-below))
     (windmove-up))
 
-(defun move-or-create-window-below nil
-  "Move to the window below the current one, or create a new split if none exists."
-  (interactive)
-  (unless (window-in-direction 'below)
-    (split-window-vertically))
-  (windmove-down))
+ (defun move-or-create-window-below nil
+   "Move to the window below the current one, or create a new split if none exists."
+   (interactive)
+   (unless (window-in-direction 'below)
+     (split-window-vertically))
+   (windmove-down))
 
-(defun move-or-create-window-left nil
-  "Move to the window to the left of the current one, or create a new split if none exists."
-  (interactive)
-  (unless (window-in-direction 'left)
-    (split-window-right))
-  (windmove-left))
+ (defun move-or-create-window-left nil
+   "Move to the window to the left of the current one, or create a new split if none exists."
+   (interactive)
+   (unless (window-in-direction 'left)
+     (split-window-right))
+   (windmove-left))
 
-(defun move-or-create-window-right nil
-  "Move to the window to the right of the current one, or create a new split if none exists."
-  (interactive)
-  (unless (window-in-direction 'right)
-    (split-window-horizontally))
-  (windmove-right))
-)
+ (defun move-or-create-window-right nil
+   "Move to the window to the right of the current one, or create a new split if none exists."
+   (interactive)
+   (unless (window-in-direction 'right)
+     (split-window-horizontally))
+   (windmove-right)))
 
 (use-package savehist
   :elpaca nil
@@ -237,21 +220,21 @@
   :demand t
   :bind*
   (("<zenkaku-hankaku>" . toggle-input-method)
-  ("<eisu-toggle>" . toggle-input-method))
+   ("<eisu-toggle>" . toggle-input-method))
   :config
   (setq default-input-method "japanese-mozc-im")
   (setq mozc-candidate-style 'popup)
   (advice-add 'mozc-session-execute-command
               :after (lambda (&rest args)
                        (when (eq (nth 0 args) 'CreateSession)
-                         (mozc-session-sendkey '(Hankaku/Zenkaku)))))
-  )
+                         (mozc-session-sendkey '(Hankaku/Zenkaku))))))
+
 (use-package mozc-im
   :after mozc)
 (use-package mozc-popup
   :after mozc)
 (use-package mozc-temp
-  :bind
+  :bind*
   ("C-j" . mozc-temp-convert-dwim)
   :after mozc)
 
@@ -266,7 +249,12 @@
 ;;   :config
 ;;   (global-sumibi-mode 1))
 
-(elpaca-wait)
+;; romaji library
+
+
+;; ==============================
+;; UI
+;; ==============================
 
 (use-package fontaine
   :init
@@ -341,12 +329,13 @@
   ;; ;; Enable custom neotree theme (all-the-icons must be installed!)
   ;; (doom-themes-neotree-config)
   ;; ;; or for treemacs users
-  ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+ ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   ;; (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+
 ;; ==============================
-;; minibuffer/completion
+;; Major Modes
 ;; ==============================
 ;; lisp
 (use-package parinfer-rust-mode
@@ -355,7 +344,20 @@
   (setq parinfer-rust-auto-download t
         parinfer-rust-library-directory (no-littering-expand-var-file-name "parinfer-rust/")))
 
-
+;;markdown
+(use-package markdown-mode
+  :ensure t
+  :mode ("\\.md\\'" . gfm-mode)
+  :config
+  (setq markdown-command "pandoc --from=markdown --to=html5"
+        markdown-fontify-code-blocks-natively t
+        markdown-header-scaling t
+        markdown-indent-on-enter 'indent-and-new-item)
+  :bind (:map markdown-mode-map
+              ("<S-tab>" . markdown-shifttab)))
+;; ==============================
+;; minibuffer/completion
+;; ==============================
 ;; vertical completion ui
 (use-package vertico
   :init
@@ -381,6 +383,10 @@
   :init
   (marginalia-mode))
 
+;; ==============================
+;; Editor
+;; ==============================
+
 ;; restore window layout
 (use-package winner
   :elpaca nil
@@ -399,7 +405,6 @@
 
 ;; scroll with cursor
 (use-package centered-cursor-mode
-  :ensure t
   :diminish centered-cursor-mode
   :config
   (global-centered-cursor-mode t)
@@ -407,96 +412,238 @@
   ;; exclude on vterm
   (add-to-list 'ccm-ignored-commands 'vterm--self-insert))
 
+;; search/narrow
+(use-package consult)
+;; dir extension
+(use-package consult-dir
+  :after consult
+  :bind
+  (("C-x C-d" . consult-dir)
+   (:map vertico-map
+    ("C-x C-d" . consult-dir)
+    ("C-x C-j" . consult-dir-jump-file)))
+  :config)
+  ;; (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
+
+
+
 (use-package meow
   :init
-  (defun meow-setup ()
-    (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
-    (meow-motion-overwrite-define-key
-     '("j" . meow-next)
-     '("k" . meow-prev)
-     '("<escape>" . ignore))
-    (meow-leader-define-key
-     ;; SPC j/k will run the original command in MOTION state.
-     '("j" . "H-j")
-     '("k" . "H-k")
-     ;; Use SPC (0-9) for digit arguments.
-     '("1" . meow-digit-argument)
-     '("2" . meow-digit-argument)
-     '("3" . meow-digit-argument)
-     '("4" . meow-digit-argument)
-     '("5" . meow-digit-argument)
-     '("6" . meow-digit-argument)
-     '("7" . meow-digit-argument)
-     '("8" . meow-digit-argument)
-     '("9" . meow-digit-argument)
-     '("0" . meow-digit-argument)
-     '("/" . meow-keypad-describe-key)
-     '("?" . meow-cheatsheet))
-    (meow-normal-define-key
-     '("0" . meow-expand-0)
-     '("9" . meow-expand-9)
-     '("8" . meow-expand-8)
-     '("7" . meow-expand-7)
-     '("6" . meow-expand-6)
-     '("5" . meow-expand-5)
-     '("4" . meow-expand-4)
-     '("3" . meow-expand-3)
-     '("2" . meow-expand-2)
-     '("1" . meow-expand-1)
-     '("-" . negative-argument)
-     '(";" . meow-reverse)
-     '("," . meow-inner-of-thing)
-     '("." . meow-bounds-of-thing)
-     '("[" . meow-beginning-of-thing)
-     '("]" . meow-end-of-thing)
-     '("a" . meow-append)
-     '("A" . meow-open-below)
-     '("b" . meow-back-word)
-     '("B" . meow-back-symbol)
-     '("c" . meow-change)
-     '("d" . meow-delete)
-     '("D" . meow-backward-delete)
-     '("e" . meow-next-word)
-     '("E" . meow-next-symbol)
-     '("f" . meow-find)
-     '("g" . meow-cancel-selection)
-     '("G" . meow-grab)
-     '("h" . meow-left)
-     '("H" . meow-left-expand)
-     '("i" . meow-insert)
-     '("I" . meow-open-above)
-     '("j" . meow-next)
-     '("J" . meow-next-expand)
-     '("k" . meow-prev)
-     '("K" . meow-prev-expand)
-     '("l" . meow-right)
-     '("L" . meow-right-expand)
-     '("m" . meow-join)
-     '("n" . meow-search)
-     '("o" . meow-block)
-     '("O" . meow-to-block)
-     '("p" . meow-yank)
-     '("q" . meow-quit)
-     '("Q" . meow-goto-line)
-     '("r" . meow-replace)
-     '("R" . meow-swap-grab)
-     '("s" . meow-kill)
-     '("t" . meow-till)
-     '("u" . meow-undo)
-     '("U" . meow-undo-in-selection)
-     '("v" . meow-visit)
-     '("w" . meow-mark-word)
-     '("W" . meow-mark-symbol)
-     '("x" . meow-line)
-     '("X" . meow-goto-line)
-     '("y" . meow-save)
-     '("Y" . meow-sync-grab)
-     '("z" . meow-pop-selection)
-     '("'" . repeat)
-     '("<escape>" . ignore)))
-  :config
-  (meow-setup)
-  (meow-global-mode 1))
+  ;; command functions
+  (defun meow-save-line nil
+    (interactive)
+    (meow-line 1)
+    (call-interactively #'meow-save))
+  (defun meow-insert-at-first-non-whitespace nil
+    (interactive)
+    (back-to-indentation)
+    (meow-insert))
+  (defun meow-insert-at-end-of-line nil
+    (interactive)
+    (move-end-of-line 1)
+    (meow-insert))
+  (defun meow-find-backward nil
+    (interactive)
+    (let ((current-prefix-arg -1))
+      (call-interactively 'meow-find)))
+  (defun meow-search-backward nil
+    (interactive)
+    (let ((current-prefix-arg -1))
+      (call-interactively 'meow-search)))
+ (defun meow-close-window-or-buffer ()
+   (interactive)
+   (if (one-window-p)
+       (kill-this-buffer)
+     (delete-window)))
+
+  ;; setup keymap
+ (defun meow-setup nil
+   (setq meow-cheatsheet-layout meow-cheatsheet-layout-qwerty)
+   (meow-motion-overwrite-define-key
+    '("j" . meow-next)
+    '("k" . meow-prev)
+    '("C-u" . ccm-scroll-down)
+    '("C-d" . ccm-scroll-up)
+    '("C-o" . my/backward-forward-previous-location)
+    '("<C-i>" . my/backward-forward-next-location)
+    '("C-w" . meow-close-window-or-buffer)
+    '("/" . consult-line)
+    '("<escape>" . ignore))
+   (meow-leader-define-key
+    '("j" . "H-j")
+    '("k" . "H-k")
+    '("C-u" . "H-C-u")
+    '("C-d" . "H-C-d")
+    '("C-o" . "H-C-o")
+    '("<C-i>" . "H-C-i")
+    '("C-w" . "H-C-w")
+    '("/" . "H-/")
+    '("r e" . restart-emacs)
+    '("w j" . move-or-create-window-below)
+    '("w k" . move-or-create-window-above)
+    '("w h" . move-or-create-window-left)
+    '("w l" . move-or-create-window-right)
+    '("w w" . window-swap-states)
+    '("f" . "s-f")
+    '("v" . my-git-actions/body)
+    '("z g" . flyspell-correct-at-point)
+    '("l" . "s-l")
+    '("p" . "C-c M-p")
+    '("K" . helpful-at-point)
+    '("SPC" . consult-buffer)
+    '("s f" . affe-find)
+    '("s p" . affe-grep)
+    '("1" . meow-digit-argument)
+    '("2" . meow-digit-argument)
+    '("3" . meow-digit-argument)
+    '("4" . meow-digit-argument)
+    '("5" . meow-digit-argument)
+    '("6" . meow-digit-argument)
+    '("7" . meow-digit-argument)
+    '("8" . meow-digit-argument)
+    '("9" . meow-digit-argument)
+    '("0" . meow-digit-argument)
+    '("/" . meow-keypad-describe-key)
+    '("?" . meow-cheatsheet))
+   (meow-normal-define-key
+    '("0" . meow-expand-0)
+    '("9" . meow-expand-9)
+    '("8" . meow-expand-8)
+    '("7" . meow-expand-7)
+    '("6" . meow-expand-6)
+    '("5" . meow-expand-5)
+    '("4" . meow-expand-4)
+    '("3" . meow-expand-3)
+    '("2" . meow-expand-2)
+    '("1" . meow-expand-1)
+    '("-" . negative-argument)
+    '("=" . meow-query-replace)
+    '("+" . meow-stellar-replace-regexp)
+    '(";" . meow-reverse)
+    '("," . meow-inner-of-thing)
+    '("." . meow-bounds-of-thing)
+    '("[" . meow-beginning-of-thing)
+    '("]" . meow-end-of-thing)
+    '("a" . meow-append)
+    '("A" . meow-insert-at-end-of-line)
+    '("o" . meow-open-below)
+    '("b" . meow-back-word)
+    '("B" . meow-back-symbol)
+    '("c" . meow-change)
+    ;; '("d" . meow-delete)
+    '("d" . meow-kill)
+    '("D" . kill-line)
+    '("e" . meow-next-word)
+    '("E" . meow-next-symbol)
+    '("f" . meow-find)
+    '("F" . avy-goto-char-timer)
+    '("g" . meow-cancel-selection)
+    '("G" . meow-grab)
+    '("h" . meow-left)
+    '("H" . meow-left-expand)
+    '("i" . meow-insert)
+    '("I" . meow-insert-at-first-non-whitespace)
+    '("O" . meow-open-above)
+    '("j" . meow-next)
+    '("J" . meow-next-expand)
+    '("k" . meow-prev)
+    '("K" . meow-prev-expand)
+    '("l" . meow-right)
+    '("L" . meow-right-expand)
+    '("m" . meow-join)
+    '("n" . meow-search)
+    '("N" . meow-search-backward)
+    '("(" . meow-block)
+    '(")" . meow-to-block)
+    '("p" . meow-yank)
+    '("q" . meow-quit)
+    '("Q" . meow-goto-line)
+    '("r" . meow-replace)
+    '("R" . repeat)
+    '("s" . meow-kill)
+    '("S" . embrace-commander)
+    '("t" . meow-till)
+    '("u" . meow-undo)
+    '("U" . undo-redo)
+    '("C-r" . undo-redo)
+    '("v" . meow-visit)
+    '("V" . er/expand-region)
+    '("w" . meow-mark-word)
+    '("W" . meow-mark-symbol)
+    '("x" . meow-line)
+    '("X" . meow-goto-line)
+    '("y" . meow-save)
+    '("Y" . meow-sync-grab)
+    '("z" . meow-pop-selection)
+    '("'" . repeat)
+    '("\"" . consult-yank-pop)
+    '("/" . consult-line)
+    '("C-u" . ccm-scroll-down)
+    '("C-d" . ccm-scroll-up)
+    '("C-o" . my/backward-forward-previous-location)
+    '("<C-i>" . my/backward-forward-next-location)
+    '("C-f" . consult-line)
+    '("C-t" . burly-perspective-init-project-persp)
+    '("C-s" . save-buffer)
+    '("C-w" . meow-close-window-or-buffer)
+   ;;  (cons "S-SPC" kurumi-utility-map)
+    '("C-s" . save-buffer)
+    '("<escape>" . ignore))
+   ;; readline-style keymap in global map
+   (bind-key "C-w" 'backward-kill-word)
+   ;; remap universal-argument
+   (bind-key "C-M-u" 'universal-argument)
+   ;; insert state keymap
+   (meow-define-keys
+       'insert
+     '("C-g" . meow-insert-exit))
+   ;; key-chord shortcuts
+   (key-chord-define meow-insert-state-keymap "jk" 'meow-insert-exit)
+   (key-chord-define meow-normal-state-keymap "gd" 'xref-find-definitions))
+
+ :config
+ (setq meow-use-clipboard t
+       meow-keypad-self-insert-undefined nil
+       meow-mode-state-list '((helpful-mode . normal)
+                              (help-mode . normal)
+                              (Man-mode . normal)
+                              (eww-mode . normal)
+                              (devdocs-mode . normal)
+                              (vterm-mode . insert)
+                              (eshell-mode . insert))
+       meow--kbd-forward-char "<right>"
+       ;; (meow--kbd-forward-line . "<down>")
+       ;; (meow--kbd-backward-line . "<up>")
+       meow--kbd-delete-char "<deletechar>"
+       meow--kbd-kill-region "S-<delete>"
+       meow--kbd-kill-line "<deleteline>"
+       meow-selection-command-fallback '((meow-reverse . back-to-indentation)
+                                         (meow-change . meow-change-char)
+                                         (meow-save . meow-save-line)
+                                         (meow-kill . meow-delete)
+                                        ;;  (meow-kill . meow-kill-whole-line)
+                                         (meow-pop-selection . meow-pop-grab)
+                                         (meow-beacon-change . meow-beacon-change-char)
+                                         (meow-cancel . keyboard-quit)
+                                         (meow-delete . meow-C-d))
+       meow-char-thing-table '((?r . round)
+                               (?\( . round)
+                               (?b . anyblock) ;; `b' for bracket
+                               (?c . curly)
+                               (?s . string)
+                               (?\" . string)
+                               (?e . symbol)
+                               (?w . window)
+                               (?B . buffer)
+                               (?g . buffer)
+                               (?p . paragraph)
+                               (?\[ . square)
+                               (?l . line)
+                               (?d . defun)
+                               (?. . sentence)))
+ (meow-setup)
+ (meow-global-mode 1))
+
 
 ;; better undo/redo
 (use-package undo-fu
@@ -508,4 +655,42 @@
   :ensure t
   :config
   (global-undo-fu-session-mode 1))
+
+;; better surround
+(use-package embrace)
+
+;; vim-like historical locate navigation
+(use-package backward-forward
+  :ensure t
+  :init
+  ;; reference: https://emacs-china.org/t/emacs/19171/17
+  (defun my/backward-forward-previous-location ()
+    "A `backward-forward-previous-location' wrap for skip invalid locations."
+    (interactive)
+    (let ((purge (< backward-forward-mark-ring-traversal-position (1- (length backward-forward-mark-ring))))
+          (recent (point-marker)))
+      (backward-forward-previous-location)
+      (when (and (equal recent (point-marker)) purge)
+        (my/backward-forward-previous-location))))
+
+  (defun my/backward-forward-next-location ()
+    "A `backward-forward-next-location' wrap for skip invalid locations."
+    (interactive)
+    (let ((purge (> backward-forward-mark-ring-traversal-position 0))
+          (recent (point-marker)))
+      (backward-forward-next-location)
+      (when (and (equal recent (point-marker)) purge)
+        (my/backward-forward-next-location))))
+  :config
+  (setq backward-forward-mark-ring-max 100)
+  (backward-forward-mode 1))
+
+
+
+
+;; ==============================
+;; Git
+;; ==============================
+
+
 ;;End;
