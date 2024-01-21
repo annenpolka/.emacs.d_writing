@@ -333,6 +333,15 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
+(use-package highlight-indent-guides
+  :hook ((prog-mode . highlight-indent-guides-mode)
+         (yaml-mode . highlight-indent-guides-mode))
+  :diminish highlight-indent-guides-mode
+  :config
+  (setq highlight-indent-guides-method 'fill
+        highlight-indent-guides-auto-enabled t
+        highlight-indent-guides-responsive "stack"))
+
 ;; ==============================
 ;; Major Modes
 ;; ==============================
