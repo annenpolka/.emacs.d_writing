@@ -372,10 +372,12 @@
 (use-package markdown-mode
   :ensure t
   :mode ("\\.md\\'" . gfm-mode)
-  :config
+  :init
   (setq markdown-command "pandoc --from=markdown --to=html5"
         markdown-fontify-code-blocks-natively t
         markdown-header-scaling t
+        markdown-hide-url t
+        markdown-hide-markup t
         markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
               ("<S-tab>" . markdown-shifttab)))
