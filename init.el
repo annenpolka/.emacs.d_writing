@@ -249,7 +249,23 @@
 ;;   (global-sumibi-mode 1))
 
 ;; romaji library
-
+(use-package migemo
+  :if (executable-find "cmigemo")
+  :init
+  (let ((scoop-path (and IS-WINDOWS
+                         (executable-find "scoop")
+                         (concat (getenv "USERPROFILE") "/scoop/apps/cmigemo/current/cmigemo-default-win64/dict/utf-8/migemo-dict")))
+        (default-path (cond (IS-WINDOWS
+                             (concat (file-name-directory (executable-find "cmigemo")) "dict/utf-8/migemo-dict"))
+                            (IS-LINUX
+                             "/usr/share/cmigemo/utf-8/migemo-dict"))))
+    (setq migemo-dictionary (or scoop-path default-path)))
+  :config
+  (when (file-exists-p migemo-dictionary)
+    (setq migemo-command "cmigemo")
+    (setq migemo-options '("-q" "-e"))
+    (setq migemo-coding-system 'utf-8-unix)
+    (migemo-init)))
 
 ;; ==============================
 ;; UI
