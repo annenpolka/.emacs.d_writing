@@ -13,6 +13,7 @@ tutorial/
 eshell/
 url/
 data/
+/history
 
 # Org-mode
 .org-id-locations
