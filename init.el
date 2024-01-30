@@ -71,24 +71,6 @@
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
 (elpaca-wait)
 
-;; IME Patch
-;; (use-package tr-ime
-;;   :if (eq window-system 'w32)
-;;   :config
-;;   (tr-ime-advanced-install)
-;;   (setq default-input-method "W32-IME")
-;;   (modify-all-frames-parameters '((ime-font . "Migu 1P-12")))
-;;   (w32-ime-initialize)
-;;   ;; IME 制御（yes/no などの入力の時に IME を off にする）
-;;   (wrap-function-to-control-ime 'universal-argument t nil)
-;;   (wrap-function-to-control-ime 'read-string nil nil)
-;;   (wrap-function-to-control-ime 'read-char nil nil)
-;;   (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
-;;   (wrap-function-to-control-ime 'y-or-n-p nil nil)
-;;   (wrap-function-to-control-ime 'yes-or-no-p nil nil)
-;;   (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
-;;   (wrap-function-to-control-ime 'register-read-with-preview nil nil))
-
 (defun install-package-with-scoop (command package bucket)
   "コマンドがシステムに存在しない場合に、Scoopを使って指定したPACKAGEをインストールする。必要ならBUCKETを追加する。"
   (when IS-WINDOWS
@@ -97,6 +79,14 @@
         (when (string-match "No matches found" search-result)
           (shell-command (format "scoop bucket add %s" bucket)))
         (shell-command (format "scoop install %s" package))))))
+
+(defun get-scoop-app-path (app-name)
+  "Scoopのappsディレクトリで指定されたアプリ名を検証し、存在すればそのパスを返す。"
+  (let* ((scoop-env (getenv "SCOOP"))
+         (scoop-path (if scoop-env scoop-env (expand-file-name "~/scoop")))
+         (app-path (expand-file-name (concat "apps/" app-name) scoop-path)))
+    (when (file-directory-p app-path)
+      app-path)))
 
 (defun my-get-auth-info (service keyword)
   "特定のサービスに対する認証情報を `auth-source` から取得する関数。
@@ -155,10 +145,34 @@
         scroll-bar-mode nil
         indent-tabs-mode nil
         vc-follow-symlinks t
-        select-enable-primary nil
+	vc-handled-backends '(Git SVN)
         show-paren-style 'parenthesis
         show-paren-delay 0
         bookmark-watch-bookmark-file 'silent))
+
+(use-package recentf
+  :elpaca nil
+  :init
+  (setq recentf-save-file "~/.emacs.d/recentf"
+        recentf-max-saved-items 2000
+        recentf-auto-cleanup 'never)
+  :config
+  (setq recentf-exclude '("recentf"
+                          "COMMIT_EDITMSG"
+                          "bookmarks"
+                          "\\.gitignore"
+                          "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\)$"
+                          ".howm-keys"
+                          "^/tmp/"
+                          "^/scp:"
+                          "~/.emacs.d/straight/.*"
+                          (lambda (file) (file-in-directory-p file package-user-dir))))
+  (recentf-mode 1))
+
+(use-package saveplace
+  :elpaca nil
+  :config
+  (save-place-mode 1))
 
 ;; move-or-create-window functions
 (use-package emacs
@@ -210,9 +224,30 @@
         gcmh-auto-idle-delay-factor 10
         gcmh-high-cons-threshold (* 16 1024 1024)))  ; 16mb
 
+;; hydra dependency
+(use-package hydra)
+
 ;; ==============================
 ;; IME
 ;; ==============================
+
+;; IME Patch
+;; (use-package tr-ime
+;;   :if (eq window-system 'w32)
+;;   :config
+;;   (tr-ime-advanced-install)
+;;   (setq default-input-method "W32-IME")
+;;   (modify-all-frames-parameters '((ime-font . "Migu 1P-12")))
+;;   (w32-ime-initialize)
+;;   ;; IME 制御（yes/no などの入力の時に IME を off にする）
+;;   (wrap-function-to-control-ime 'universal-argument t nil)
+;;   (wrap-function-to-control-ime 'read-string nil nil)
+;;   (wrap-function-to-control-ime 'read-char nil nil)
+;;   (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
+;;   (wrap-function-to-control-ime 'y-or-n-p nil nil)
+;;   (wrap-function-to-control-ime 'yes-or-no-p nil nil)
+;;   (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
+;;   (wrap-function-to-control-ime 'register-read-with-preview nil nil))
 
 ;; japanese input method
 (use-package mozc
@@ -220,18 +255,25 @@
   :bind*
   (("<zenkaku-hankaku>" . toggle-input-method)
    ("<eisu-toggle>" . toggle-input-method))
+  :hook
+  (input-method-deactivate-hook . (lambda() (key-chord-mode 1)))
   :config
   (setq default-input-method "japanese-mozc-im")
-  (setq mozc-candidate-style 'popup)
+  ;; (setq mozc-candidate-style 'popup)
+  ;; workaround for win
   (advice-add 'mozc-session-execute-command
-              :after (lambda (&rest args)
-                       (when (eq (nth 0 args) 'CreateSession)
-                         (mozc-session-sendkey '(Hankaku/Zenkaku))))))
+             :after (lambda (&rest args)
+                      (when (eq (nth 0 args) 'CreateSession)
+                        (mozc-session-sendkey '(Hankaku/Zenkaku))))))
 
 (use-package mozc-im
   :after mozc)
 (use-package mozc-popup
   :after mozc)
+;; (use-package mozc-cand-posframe
+;;   :after mozc
+;;   :config
+;;    (setq mozc-candidate-style 'posframe))
 (use-package mozc-temp
   :bind*
   ("C-j" . mozc-temp-convert-dwim)
@@ -363,6 +405,7 @@
 ;; ==============================
 ;; lisp
 (use-package parinfer-rust-mode
+  :disabled
   :hook (emacs-lisp-mode . parinfer-rust-mode)
   :init
   (setq parinfer-rust-auto-download t
