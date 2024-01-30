@@ -53,6 +53,11 @@
 ;; :diminish support
 (use-package diminish)
 
+;; hydra dependency
+(use-package hydra)
+(use-package pretty-hydra)
+
+
 ;; double-key binding support
 (use-package key-chord
   :config
@@ -223,9 +228,6 @@
         gcmh-idle-delay 'auto  ; default is 15s
         gcmh-auto-idle-delay-factor 10
         gcmh-high-cons-threshold (* 16 1024 1024)))  ; 16mb
-
-;; hydra dependency
-(use-package hydra)
 
 ;; ==============================
 ;; IME
