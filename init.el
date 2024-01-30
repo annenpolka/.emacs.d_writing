@@ -468,8 +468,8 @@
 
   (orderless-define-completion-style orderless-migemo-style
     (orderless-matching-styles '(orderless-literal
-                                 orderless-regexp
-                                 orderless-migemo)))
+                                orderless-regexp
+                                orderless-migemo)))
 
   (setq completion-category-overrides
         '((command (styles orderless-default-style))
@@ -796,5 +796,42 @@
 ;; Git
 ;; ==============================
 
+(use-package magit
+  :ensure t
+  :bind (:map magit-status-mode-map
+         ("p" . magit-pull)
+         ("x" . magit-delete-thing)))
+(use-package forge
+  :after magit
+  :custom
+  (bug-reference-mode 0)
+  (forge-add-default-bindings t))
+
+(use-package diff-hl
+  :ensure t
+  :after magit
+  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
+               (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+  :config
+  (global-diff-hl-mode 1)
+  :custom
+  (diff-hl-show-staged-changes nil)
+  (diff-hl-ask-before-revert-hunk t)
+  :config
+  (defhydra my-git-actions (:color pink :separator "=" :quit-key "q")
+    "Movement"
+    ("J" diff-hl-next-hunk "next hunk")
+    ("K" diff-hl-previous-hunk "previous hunk")
+    "Diff"
+    ("D" diff-hl-show-hunk "diff nearest hunk")
+    ("N" diff-hl-show-hunk-next "diff next hunk")
+    ("P" diff-hl-show-hunk-previous "diff previous hunk")
+    "Operation"
+    ("r" diff-hl-revert-hunk "revert hunk")
+    ("s" diff-hl-stage-current-hunk "stage hunk")
+    ("U" diff-hl-unstage-file "unstage all")
+    "Magit"
+    (("<RET>" magit-status "open magit" :color blue)
+     ("c" magit-commit "commit" :color blue))))
 
 ;;End;
