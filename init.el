@@ -61,7 +61,7 @@
 ;; double-key binding support
 (use-package key-chord
   :config
-  (setq key-chord-two-keys-delay 0.1
+  (setq key-chord-two-keys-delay 0.08
         key-chord-one-keys-delay 0.2)
   (key-chord-mode 1))
 
@@ -174,6 +174,7 @@
                           (lambda (file) (file-in-directory-p file package-user-dir))))
   (recentf-mode 1))
 
+;; save final place on each file
 (use-package saveplace
   :elpaca nil
   :config
@@ -402,6 +403,12 @@
         highlight-indent-guides-auto-enabled t
         highlight-indent-guides-responsive "stack"))
 
+(use-package rainbow-identifiers
+  :hook
+  (prog-mode . rainbow-identifiers-mode))
+
+(use-package rainbow-delimiters
+  :hook ((prog-mode org-mode) . rainbow-delimiters-mode))
 ;; ==============================
 ;; Major Modes
 ;; ==============================
@@ -791,9 +798,6 @@
   (setq backward-forward-mark-ring-max 100)
   (backward-forward-mode 1))
 
-
-
-
 ;; ==============================
 ;; Git
 ;; ==============================
@@ -812,28 +816,30 @@
 (use-package diff-hl
   :ensure t
   :after magit
-  :hook ((magit-pre-refresh-hook . diff-hl-magit-pre-refresh)
-               (magit-post-refresh-hook . diff-hl-magit-post-refresh))
+  :hook ((magit-pre-refresh . diff-hl-magit-pre-refresh)
+               (magit-post-refresh . diff-hl-magit-post-refresh))
   :config
   (global-diff-hl-mode 1)
   :custom
   (diff-hl-show-staged-changes nil)
   (diff-hl-ask-before-revert-hunk t)
-  :config
-  (defhydra my-git-actions (:color pink :separator "=" :quit-key "q")
-    "Movement"
-    ("J" diff-hl-next-hunk "next hunk")
-    ("K" diff-hl-previous-hunk "previous hunk")
+  :bind (:map prog-mode-map
+              ("C-M-g g" . my-git-actions/body))
+ :pretty-hydra
+  (my-git-actions
+   (:color pink :separator "=" :quit-key "q")
+   ("Movement"
+    (("J" diff-hl-next-hunk "next hunk")
+     ("K" diff-hl-previous-hunk "previous hunk"))
     "Diff"
-    ("D" diff-hl-show-hunk "diff nearest hunk")
-    ("N" diff-hl-show-hunk-next "diff next hunk")
-    ("P" diff-hl-show-hunk-previous "diff previous hunk")
+    (("D" diff-hl-show-hunk "diff nearest hunk")
+     ("N" diff-hl-show-hunk-next "diff next hunk")
+     ("P" diff-hl-show-hunk-previous "diff previous hunk"))
     "Operation"
-    ("r" diff-hl-revert-hunk "revert hunk")
-    ("s" diff-hl-stage-current-hunk "stage hunk")
-    ("U" diff-hl-unstage-file "unstage all")
+    (("r" diff-hl-revert-hunk "revert hunk")
+     ("s" diff-hl-stage-current-hunk "stage hunk")
+     ("U" diff-hl-unstage-file "unstage all"))
     "Magit"
     (("<RET>" magit-status "open magit" :color blue)
-     ("c" magit-commit "commit" :color blue))))
-
+     ("c" magit-commit "commit" :color blue)))))
 ;;End;
