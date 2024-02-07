@@ -539,7 +539,22 @@
   :config)
   ;; (setq consult-dir-project-list-function #'consult-dir-projectile-dirs)
 
+;; autocomplete/delete parens
+(use-package puni
+  :defer t
+  :init
+  (electric-pair-mode 1)
+  ;; The autoloads of Puni are set up so you can enable `puni-mode` or
+  ;; `puni-global-mode` before `puni` is actually loaded. Only after you press
+  ;; any key that calls Puni commands, it's loaded.
+  (puni-global-mode)
+  (add-hook 'term-mode-hook #'puni-disable-puni-mode))
 
+;; non-lsp xref source
+(use-package dumb-jump
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  (setq xref-show-definitions-function #'xref-show-definitions-completing-read))
 
 (use-package meow
   :init
