@@ -126,6 +126,7 @@
   (global-set-key (kbd "C-?") 'help-for-help)
   (define-key input-decode-map [?\C-i] [C-i])
   (show-paren-mode 1)
+  (global-display-line-numbers-mode 1)
   :config
   (setq user-full-name "annenpolka"
         user-mail-address "lancelbb@gmail.com"
@@ -206,7 +207,7 @@
      (split-window-right))
    (windmove-left))
 
- (defun move-or-create-window-right nil
+(defun move-or-create-window-right nil
    "Move to the window to the right of the current one, or create a new split if none exists."
    (interactive)
    (unless (window-in-direction 'right)
@@ -714,6 +715,9 @@
    (key-chord-define meow-insert-state-keymap "jk" 'meow-insert-exit)
    (key-chord-define meow-normal-state-keymap "gd" 'xref-find-definitions))
 
+ :hook
+ (meow-insert-exit . (lambda nil (deactivate-input-method)))
+ 
  :config
  (setq meow-use-clipboard t
        meow-keypad-self-insert-undefined nil
@@ -814,7 +818,6 @@
   (forge-add-default-bindings t))
 
 (use-package diff-hl
-  :ensure t
   :after magit
   :hook ((magit-pre-refresh . diff-hl-magit-pre-refresh)
                (magit-post-refresh . diff-hl-magit-post-refresh))
