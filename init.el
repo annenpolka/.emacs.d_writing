@@ -458,7 +458,7 @@
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
+              ("M-A" . marginalia-cycle))
   :init
   (marginalia-mode))
 
@@ -478,8 +478,8 @@
 
   (orderless-define-completion-style orderless-migemo-style
     (orderless-matching-styles '(orderless-literal
-                                orderless-regexp
-                                orderless-migemo)))
+                                 orderless-regexp
+                                 orderless-migemo)))
 
   (setq completion-category-overrides
         '((command (styles orderless-default-style))
