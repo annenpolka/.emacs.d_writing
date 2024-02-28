@@ -501,6 +501,11 @@
 ;; Editor
 ;; ==============================
 
+;; formatter
+(use-package apheleia
+  :config
+  (apheleia-global-mode t))
+
 ;; restore window layout
 (use-package winner
   :elpaca nil
