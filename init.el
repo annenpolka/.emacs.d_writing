@@ -430,9 +430,26 @@
 
 ;;markdown
 (use-package markdown-mode
-  :ensure t
   :mode ("\\.md\\'" . gfm-mode)
+  :hook ((markdown-mode . turn-off-auto-fill)
+	 (markdown-mode . visual-line-mode))
   :init
+  (use-package word-wrap-mode
+    :ensure nil
+    :hook (visual-line-mode . word-wrap-whitespace-mode)
+    :config
+    (add-to-list 'word-wrap-whitespace-characters ?\]))
+
+  (use-package visual-fill-column
+    :hook (visual-line-mode . visual-fill-column-mode)
+    :init
+    (setq visual-line-fringe-indicators '(left-curly-arrow nil))
+    :config
+    (setq visual-fill-column-width 78))
+
+  (use-package adaptive-wrap
+    :hook (visual-line-mode . adaptive-wrap-prefix-mode))
+  
   (setq markdown-command "pandoc --from=markdown --to=html5"
         markdown-fontify-code-blocks-natively t
         markdown-header-scaling t
