@@ -46,8 +46,10 @@
 (elpaca elpaca-use-package
   ;; Enable :elpaca use-package keyword.
   (elpaca-use-package-mode)
-  ;; Assume :elpaca t unless otherwise specified.
-  (setq elpaca-use-package-by-default t))
+  ;; Assume :ensure t unless otherwise specified.
+  (setq use-package-always-ensure t)
+  ;; limit queue number for too many open files error
+  (setq elpaca-queue-limit 10))
 (elpaca-wait)
 
 ;; :diminish support
@@ -114,9 +116,9 @@
 
 ;; set builtin configs
 (use-package emacs
-  :elpaca nil
   :ensure nil
-  :bind (("M-ESC ESC" . c/redraw-frame))
+  :bind* (("M-ESC ESC" . c/redraw-frame)
+	  ("C-w" . 'backward-kill-word))
   :init
   (defun c/redraw-frame nil
     (interactive)
@@ -151,13 +153,13 @@
         scroll-bar-mode nil
         indent-tabs-mode nil
         vc-follow-symlinks t
-	vc-handled-backends '(Git SVN)
+        vc-handled-backends '(Git SVN)
         show-paren-style 'parenthesis
         show-paren-delay 0
         bookmark-watch-bookmark-file 'silent))
 
 (use-package recentf
-  :elpaca nil
+  :ensure nil
   :init
   (setq recentf-save-file "~/.emacs.d/recentf"
         recentf-max-saved-items 2000
@@ -177,13 +179,12 @@
 
 ;; save final place on each file
 (use-package saveplace
-  :elpaca nil
+  :ensure nil
   :config
   (save-place-mode 1))
 
 ;; move-or-create-window functions
 (use-package emacs
-  :elpaca nil
   :ensure nil
   :init
   (defun move-or-create-window-above nil
@@ -215,7 +216,7 @@
     (windmove-right)))
 
 (use-package savehist
-  :elpaca nil
+  :ensure nil
   :init
   (savehist-mode 1)
   :config
@@ -537,14 +538,21 @@
   :config
   (apheleia-global-mode t))
 
+;; ==============================
+;; Editor
+;; ==============================
+
 ;; restore window layout
 (use-package winner
-  :elpaca nil
+  :ensure nil
   :bind
   (("C-z" . winner-undo)
    ("C-S-z" . winner-redo))
   :config
   (winner-mode 1))
+
+;; window switching
+(use-package ace-window)
 
 ;; zoom focused window
 (use-package zoom
