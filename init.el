@@ -570,6 +570,9 @@
   ;; exclude on vterm
   (add-to-list 'ccm-ignored-commands 'vterm--self-insert))
 
+;; zen writing mode
+(use-package writeroom-mode)
+
 ;; search/narrow
 (use-package consult)
 ;; dir extension
