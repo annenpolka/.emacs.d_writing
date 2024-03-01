@@ -379,6 +379,12 @@
   :bind
   ("C-c F" . fontaine-set-preset))
 
+;; variable-pitch-mode workaround
+(use-package mixed-pitch
+  :hook
+  ;; If you want it in all text modes:
+  (text-mode . mixed-pitch-mode))
+
 ;; theme
 (use-package doom-themes
   :config
