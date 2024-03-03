@@ -397,7 +397,7 @@
   ;; ;; Enable custom neotree theme (all-the-icons must be installed!)
   ;; (doom-themes-neotree-config)
   ;; ;; or for treemacs users
- ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  ;; (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   ;; (doom-themes-treemacs-config)
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
@@ -454,7 +454,8 @@
         markdown-fontify-code-blocks-natively t
         markdown-header-scaling t
         markdown-hide-url t
-        markdown-hide-markup t
+        markdown-hide-markup nil
+	markdown-list-indent-width 4
         markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
               ("<S-tab>" . markdown-shifttab)))
@@ -528,11 +529,13 @@
         (invalid-regexp nil))))
 
   (orderless-define-completion-style orderless-default-style
-    (orderless-matching-styles '(orderless-literal
+    (orderless-matching-styles '(orderless-initialism
+				 orderless-literal
                                  orderless-regexp)))
-
+  
   (orderless-define-completion-style orderless-migemo-style
-    (orderless-matching-styles '(orderless-literal
+    (orderless-matching-styles '(orderless-initialism
+				 orderless-literal
                                  orderless-regexp
                                  orderless-migemo)))
 
@@ -561,8 +564,8 @@
   (corfu-cycle t)           ;; Enable cycling for `corfu-next/previous'
   (corfu-preselect 'prompt) ;; Always preselect the prompt
   (corfu-auto t)
-  (corfu-auto-delay 0)
-  (corfu-auto-prefix 1)
+  (corfu-auto-delay 0.01)
+  (corfu-auto-prefix 3)
   (corfu-cycle t)
   (corfu-on-exact-match nil)
   (tab-always-indent 'complete)
@@ -601,7 +604,25 @@
          ("C-c p ^" . cape-tex)
          ("C-c p &" . cape-sgml)
          ("C-c p r" . cape-rfc1345))
+  :hook
+  (((prog-mode
+     text-mode) . my/set-super-capf))
   :init
+  (defun my/set-super-capf (&optional arg)
+    (setq-local completion-at-point-functions
+                (list (cape-capf-noninterruptible
+                       (cape-capf-buster
+                        (cape-capf-properties
+                         (cape-capf-super
+                          (if arg
+                              arg
+                            (car completion-at-point-functions))
+                          ;; #'tempel-complete
+                          ;; #'tabnine-completion-at-point
+                          #'cape-dabbrev
+                          #'cape-file)
+                         :sort t
+                         :exclusive 'no))))))
   ;; Add to the global default value of `completion-at-point-functions' which is
   ;; used by `completion-at-point'.  The order of the functions matters, the
   ;; first function returning a result wins.  Note that the list of buffer-local
@@ -610,7 +631,7 @@
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-elisp-block)
   ;;(add-to-list 'completion-at-point-functions #'cape-history)
-  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
   ;;(add-to-list 'completion-at-point-functions #'cape-tex)
   ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
   ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
