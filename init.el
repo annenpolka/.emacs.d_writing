@@ -845,7 +845,7 @@
 (use-package hl-block-mode
   :commands (hl-block-mode)
   :config
-  (setq hl-block-color-tint "#010102"
+  (setq hl-block-color-tint "#010101"
 	hl-block-delay 0.1
 	hl-block-single-level nil)
   :hook ((prog-mode) . hl-block-mode))
@@ -1026,16 +1026,17 @@
 
   :hook
   (meow-insert-exit . (lambda nil (deactivate-input-method)))
+  (meow-insert-exit . (lambda nil (call-interactively 'corfu-quit)))
   :config
   (setq meow-use-clipboard t
 	meow-keypad-self-insert-undefined nil
 	meow-mode-state-list '((helpful-mode . normal)
-                               (help-mode . normal)
-                               (Man-mode . normal)
-                               (eww-mode . normal)
-                               (devdocs-mode . normal)
-                               (vterm-mode . insert)
-                               (eshell-mode . insert))
+			       (help-mode . normal)
+			       (Man-mode . normal)
+			       (eww-mode . normal)
+			       (devdocs-mode . normal)
+			       (vterm-mode . insert)
+			       (eshell-mode . insert))
 	meow--kbd-forward-char "<right>"
 	;; (meow--kbd-forward-line . "<down>")
 	;; (meow--kbd-backward-line . "<up>")
@@ -1076,40 +1077,17 @@
 (use-package magit
   :ensure t
   :bind (:map magit-status-mode-map
-              ("p" . magit-pull)
-              ("x" . magit-delete-thing)))
+	      ("p" . magit-pull)
+	      ("x" . magit-delete-thing)))
 (use-package forge
+  :disabled
   :after magit
   :custom
   (bug-reference-mode 0)
   (forge-add-default-bindings t))
 
-(use-package diff-hl
-  :after magit
-  :hook ((magit-pre-refresh . diff-hl-magit-pre-refresh)
-         (magit-post-refresh . diff-hl-magit-post-refresh))
-  :config
-  (global-diff-hl-mode 1)
-  :custom
-  (diff-hl-show-staged-changes nil)
-  (diff-hl-ask-before-revert-hunk t)
-  :bind (:map prog-mode-map
-              ("C-M-g g" . my-git-actions/body))
-  :pretty-hydra
-  (my-git-actions
-   (:color pink :separator "=" :quit-key "q")
-   ("Movement"
-    (("J" diff-hl-next-hunk "next hunk")
-     ("K" diff-hl-previous-hunk "previous hunk"))
-    "Diff"
-    (("D" diff-hl-show-hunk "diff nearest hunk")
-     ("N" diff-hl-show-hunk-next "diff next hunk")
-     ("P" diff-hl-show-hunk-previous "diff previous hunk"))
-    "Operation"
-    (("r" diff-hl-revert-hunk "revert hunk")
-     ("s" diff-hl-stage-current-hunk "stage hunk")
-     ("U" diff-hl-unstage-file "unstage all"))
-    "Magit"
-    (("<RET>" magit-status "open magit" :color blue)
-     ("c" magit-commit "commit" :color blue)))))
+(use-package git-gutter
+  :init
+  (global-git-gutter-mode))
+
 ;;End;
