@@ -350,7 +350,7 @@
            ;; I keep all properties for didactic purposes, but most can be
            ;; omitted.  See the fontaine manual for the technicalities:
            ;; <https://protesilaos.com/emacs/fontaine>.
-           :default-family "Iosevka Term"
+           :default-family "Migu 1M"
            :default-weight regular
            :default-height 120
            :fixed-pitch-family nil ; falls back to :default-family
@@ -359,7 +359,7 @@
            :fixed-pitch-serif-family nil ; falls back to :default-family
            :fixed-pitch-serif-weight nil ; falls back to :default-weight
            :fixed-pitch-serif-height 1.0
-           :variable-pitch-family "Iosevka"
+           :variable-pitch-family "Migu 1P"
            :variable-pitch-weight nil
            :variable-pitch-height 1.0
            :bold-family nil ; use whatever the underlying face has
@@ -376,13 +376,26 @@
 
   ;; set japanese font manually
   (defun set-japanese-font-face nil
-    (set-fontset-font t 'japanese-jisx0208 (font-spec :family "migu 1P")))
-  (set-japanese-font-face)
-  :hook
+    (set-fontset-font t 'japanese-jisx0208 (font-spec :family "migu 1M")))
+  ;; (set-japanese-font-face)
+  ;; :hook
   ;; hook for daemon mode
-  (server-after-make-frame-hook . set-japanese-font-face)
+  ;; (server-after-make-frame-hook . set-japanese-font-face)
   :bind
   ("C-c F" . fontaine-set-preset))
+
+;; emoji configured
+(use-package emojify
+  :hook (after-init . global-emojify-mode)
+  :config
+  ;; 絵文字フォントをsetするリスト
+  (let ((fonts '("Segoe UI Emoji" "Noto Color Emoji")))
+    (dolist (font fonts)
+      (when (member font (font-family-list))
+	(set-fontset-font
+	 t 'symbol (font-spec :family font) nil 'prepend))))
+  :custom
+  (emojify-display-style 'unicode))
 
 ;; variable-pitch-mode workaround
 (use-package mixed-pitch
