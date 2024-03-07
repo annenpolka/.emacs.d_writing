@@ -511,7 +511,7 @@
 
   (use-package adaptive-wrap
     :hook (visual-line-mode . adaptive-wrap-prefix-mode))
-  
+
   (setq markdown-command "pandoc --from=markdown --to=html5"
         markdown-fontify-code-blocks-natively t
         markdown-header-scaling t
@@ -594,7 +594,7 @@
     (orderless-matching-styles '(orderless-initialism
 				 orderless-literal
                                  orderless-regexp)))
-  
+
   (orderless-define-completion-style orderless-migemo-style
     (orderless-matching-styles '(orderless-initialism
 				 orderless-literal
@@ -642,8 +642,8 @@
   ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
   ;; be used globally (M-/).  See also the customization variable
   ;; `global-corfu-modes' to exclude certain modes.
-  :init
-  (global-corfu-mode))
+  :hook
+  (prog-mode . corfu-mode))
 
 ;; Add extensions
 (use-package cape
