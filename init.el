@@ -133,7 +133,6 @@
   (define-key input-decode-map [?\C-i] [C-i])
   (show-paren-mode 1)
   (global-display-line-numbers-mode 1)
-  :config
   (setq user-full-name "annenpolka"
         user-mail-address "lancelbb@gmail.com"
         user-login-name "annenpolka"
@@ -154,6 +153,7 @@
         truncate-lines t
         completion-cycle-threshold 3
         tab-always-indent 'complete
+        default-tab-width 4
         scroll-bar-mode nil
         indent-tabs-mode nil
         vc-follow-symlinks t
@@ -167,7 +167,8 @@
   :init
   (setq recentf-save-file "~/.emacs.d/recentf"
         recentf-max-saved-items 2000
-        recentf-auto-cleanup 'never)
+        recentf-auto-cleanup 'never
+	recentf-keep          '(file-remote-p file-readable-p))
   :config
   (setq recentf-exclude '("recentf"
                           "COMMIT_EDITMSG"
