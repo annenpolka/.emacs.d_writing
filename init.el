@@ -807,6 +807,7 @@
   ([remap undo] . undo-fu-only-undo)
   ([remap redo] . undo-fu-only-redo))
 (use-package undo-fu-session
+  ;; :disabled t ; HELP: too slow on save
   :ensure t
   :config
   (global-undo-fu-session-mode 1))
