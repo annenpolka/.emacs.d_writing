@@ -242,25 +242,26 @@
 ;; ==============================
 
 ;; IME Patch
-;; (use-package tr-ime
-;;   :if (eq window-system 'w32)
-;;   :config
-;;   (tr-ime-advanced-install)
-;;   (setq default-input-method "W32-IME")
-;;   (modify-all-frames-parameters '((ime-font . "Migu 1P-12")))
-;;   (w32-ime-initialize)
-;;   ;; IME 制御（yes/no などの入力の時に IME を off にする）
-;;   (wrap-function-to-control-ime 'universal-argument t nil)
-;;   (wrap-function-to-control-ime 'read-string nil nil)
-;;   (wrap-function-to-control-ime 'read-char nil nil)
-;;   (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
-;;   (wrap-function-to-control-ime 'y-or-n-p nil nil)
-;;   (wrap-function-to-control-ime 'yes-or-no-p nil nil)
-;;   (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
-;;   (wrap-function-to-control-ime 'register-read-with-preview nil nil))
+(use-package tr-ime
+  :if (when IS-WINDOWS)
+  :config
+  (tr-ime-advanced-install)
+  (setq default-input-method "W32-IME")
+  (modify-all-frames-parameters '((ime-font . "Migu 1P-12")))
+  (w32-ime-initialize)
+  ;; IME 制御（yes/no などの入力の時に IME を off にする）
+  (wrap-function-to-control-ime 'universal-argument t nil)
+  (wrap-function-to-control-ime 'read-string nil nil)
+  (wrap-function-to-control-ime 'read-char nil nil)
+  (wrap-function-to-control-ime 'read-from-minibuffer nil nil)
+  (wrap-function-to-control-ime 'y-or-n-p nil nil)
+  (wrap-function-to-control-ime 'yes-or-no-p nil nil)
+  (wrap-function-to-control-ime 'map-y-or-n-p nil nil)
+  (wrap-function-to-control-ime 'register-read-with-preview nil nil))
 
 ;; japanese input method
 (use-package mozc
+  :if (when IS-LINUX)
   :demand t
   :bind*
   (("<zenkaku-hankaku>" . toggle-input-method)
