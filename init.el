@@ -249,6 +249,9 @@
 ;; IME Patch
 (use-package tr-ime
   :if (when IS-WINDOWS)
+  :hook
+  (w32-ime-on-hook . (lambda() (key-chord-mode 1)))
+  (w32-ime-off-hook . (lambda() (key-chord-mode 1)))
   :config
   (tr-ime-advanced-install)
   (setq default-input-method "W32-IME")
@@ -356,7 +359,7 @@
            ;; I keep all properties for didactic purposes, but most can be
            ;; omitted.  See the fontaine manual for the technicalities:
            ;; <https://protesilaos.com/emacs/fontaine>.
-           :default-family "Migu 1M"
+           :default-family "PlemolJP Console NF"
            :default-weight regular
            :default-height 120
            :fixed-pitch-family nil ; falls back to :default-family
@@ -365,7 +368,7 @@
            :fixed-pitch-serif-family nil ; falls back to :default-family
            :fixed-pitch-serif-weight nil ; falls back to :default-weight
            :fixed-pitch-serif-height 1.0
-           :variable-pitch-family "Migu 1P"
+           :variable-pitch-family "PlemolJP Console NF"
            :variable-pitch-weight nil
            :variable-pitch-height 1.0
            :bold-family nil ; use whatever the underlying face has
