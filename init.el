@@ -160,7 +160,12 @@
         vc-handled-backends '(Git SVN)
         show-paren-style 'parenthesis
         show-paren-delay 0
-        bookmark-watch-bookmark-file 'silent))
+        bookmark-watch-bookmark-file 'silent)
+  (when IS-WINDOWS
+    ;; use cp932 for windows processes
+    (setq default-process-coding-system '(utf-8-dos . cp932))
+    )
+  )
 
 (use-package recentf
   :ensure nil
