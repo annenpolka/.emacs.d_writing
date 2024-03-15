@@ -180,10 +180,10 @@
                           "bookmarks"
                           "\\.gitignore"
                           "\\.\\(?:gz\\|gif\\|svg\\|png\\|jpe?g\\)$"
-                          ".howm-keys"
                           "^/tmp/"
                           "^/scp:"
                           "~/.emacs.d/straight/.*"
+                          "~/howm/.*"
                           (lambda (file) (file-in-directory-p file package-user-dir))))
   (recentf-mode 1))
 
