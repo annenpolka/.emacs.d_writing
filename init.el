@@ -1099,4 +1099,42 @@
   :init
   (global-git-gutter-mode))
 
+;; ==============================
+;; notetaking/writing
+;; ==============================
+
+(use-package howm
+  :init
+  ;; (define-key global-map [katakana] 'howm-menu) ; [カタカナ] キーでメニュー
+  (setq howm-file-name-format "%Y/%m/%Y_%m_%d.org") ; 1 日 1 ファイル
+  (setq howm-keyword-case-fold-search t) ; <<< で大文字小文字を区別しない
+  (setq howm-list-title t) ; 一覧時にタイトルを表示
+  (setq howm-history-file "~/howm/.howm-history")
+  (setq howm-keyword-file "~/howm/.howm-keys")
+  ;; (setq howm-menu-refresh-after-save nil) ; save 時にメニューを自動更新せず
+  ;; (setq howm-refresh-after-save nil) ; save 時に下線を引き直さない
+  ;; (setq howm-menu-expiry-hours 2) ; メニューを 2 時間キャッシュ
+  
+  ;; Use ripgrep as grep
+  (setq howm-view-use-grep t)
+  (setq howm-view-grep-command "rg")
+  (setq howm-view-grep-option "-nH --no-heading --color never")
+  (setq howm-view-grep-extended-option nil)
+  (setq howm-view-grep-fixed-option "-F")
+  (setq howm-view-grep-expr-option nil)
+  (setq howm-view-grep-file-stdin-option nil)
+  
+  :config
+  (define-key howm-menu-mode-map "\C-h" nil)
+  (define-key riffle-summary-mode-map "\C-h" nil)
+  (define-key howm-view-contents-mode-map "\C-h" nil)
+  )
+
+;; ==============================
+;; External Services
+;; ==============================
+
+
 ;;End;
+
+
