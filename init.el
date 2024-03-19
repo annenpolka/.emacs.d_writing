@@ -1162,9 +1162,12 @@
   )
 
 ;; ==============================
-;; External Services
+;; External Services/Integrations
 ;; ==============================
 
+(use-package atomic-chrome
+  :config
+  (atomic-chrome-start-server))
 
 ;;End;
 
