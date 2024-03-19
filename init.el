@@ -735,6 +735,26 @@
 ;; Editor
 ;; ==============================
 
+;; save on idle
+(use-package super-save
+  :diminish super-save-mode
+  :custom
+  (super-save-auto-save-when-idle t)
+  :config
+  ;; add integration with ace-window
+  (add-to-list 'super-save-triggers 'ace-window)
+  ;; save on find-file
+  (add-to-list 'super-save-hook-triggers 'find-file-hook)
+  (super-save-mode +1))
+
+;; show key guides
+(use-package which-key
+  :diminish which-key-mode
+  :custom (which-key-idle-delay 0.25)
+  :config
+  (which-key-setup-side-window-right-bottom)
+  (which-key-mode t))
+
 ;; restore window layout
 (use-package winner
   :ensure nil
