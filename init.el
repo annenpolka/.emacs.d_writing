@@ -795,6 +795,14 @@
   (add-to-list 'ccm-ignored-commands 'vterm--self-insert))
 
 ;; workspace
+(use-package perspective
+  :bind
+  ;; ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
+  :custom
+  (persp-mode-prefix-key (kbd "C-c p"))  ; pick your own prefix key here
+  :init
+  (persp-mode))
+
 (use-package activities
   :disabled ; HELP: need workaround for persist version dependencies
   :ensure (activities :host github :repo "alphapapa/activities.el")
