@@ -720,6 +720,17 @@
   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
   )
+(use-package prescient
+  :config
+  (setq prescient-aggressive-file-save t)
+  (prescient-persist-mode +1))
+
+(use-package corfu-prescient
+  :after corfu
+  :config
+  (with-eval-after-load 'orderless
+    (setq corfu-prescient-enable-filtering nil))
+  (corfu-prescient-mode +1))
 
 ;; ==============================
 ;; Linting/Formatting
