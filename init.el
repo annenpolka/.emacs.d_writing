@@ -1146,6 +1146,10 @@
   ;; (setq howm-refresh-after-save nil) ; save 時に下線を引き直さない
   ;; (setq howm-menu-expiry-hours 2) ; メニューを 2 時間キャッシュ
   
+  ;; hide howm-related mode buffers
+  (setq howm-view-summary-name " *howmS*")
+  (setq howm-view-contents-name " *howmC*")
+  
   ;; Use ripgrep as grep
   (setq howm-view-use-grep t)
   (setq howm-view-grep-command "rg")
