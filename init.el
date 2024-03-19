@@ -431,6 +431,7 @@
 
 (use-package whitespace
   :ensure nil
+  :diminish whitespace-mode
   :init
   (setq whitespace-style '(face           ; faceで可視化
                            trailing       ; 行末
@@ -473,7 +474,6 @@
   )
 
 (use-package highlight-indent-guides
-  :disabled
   :hook ((prog-mode . highlight-indent-guides-mode)
          (yaml-mode . highlight-indent-guides-mode))
   :diminish highlight-indent-guides-mode
@@ -609,7 +609,13 @@
 				 orderless-literal
                                  orderless-regexp
                                  orderless-migemo)))
-
+  
+  (orderless-define-completion-style orderless-fuzzy-style
+    (orderless-matching-styles '(orderless-initialism
+				 orderless-literal
+				 orderless-flex
+                                 orderless-regexp
+                                 orderless-migemo)))
   (setq completion-category-overrides
         '((command (styles orderless-default-style))
           (file (styles orderless-migemo-style))
@@ -618,13 +624,16 @@
           (consult-location (styles orderless-migemo-style)) ; category `consult-location' は `consult-line' などに使われる
           (consult-multi (styles orderless-migemo-style)) ; category `consult-multi' は `consult-buffer' などに使われる
           (org-roam-node (styles orderless-migemo-style)) ; category `org-roam-node' は `org-roam-node-find' で使われる
+          (howm-fuzzy (styles orderless-fuzzy-style))
           (unicode-name (styles orderless-migemo-style))
           (variable (styles orderless-default-style))))
 
+  ;;
+  (add-to-list 'marginalia-prompt-categories '("\\<Keyword\\>" . howm-fuzzy))
   ;; (setq orderless-matching-styles '(orderless-literal orderless-regexp orderless-migemo))
   :custom
   (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  )
 
 ;; ==============================
 ;; suggestion/autocompletion
@@ -718,6 +727,7 @@
 
 ;; formatter
 (use-package apheleia
+  :diminish apheleia-mode
   :config
   (apheleia-global-mode t))
 
@@ -740,7 +750,7 @@
 ;; zoom focused window
 (use-package zoom
   :config
-  (setq zoom-size '(0.618 . 0.618)
+  (setq zoom-size '(0.525 . 0.525)
         zoom-ignored-major-modes '(dirvish-mode))
   (zoom-mode 1))
 
@@ -816,13 +826,17 @@
   ([remap undo] . undo-fu-only-undo)
   ([remap redo] . undo-fu-only-redo))
 (use-package undo-fu-session
-  ;; :disabled t ; HELP: too slow on save
+  :disabled t ; HELP: too slow on save
   :ensure t
   :config
   (global-undo-fu-session-mode 1))
 
 ;; better surround
-(use-package embrace)
+(use-package embrace
+  :config
+  ;; wikilink
+  (lambda nil (embrace-add-pair ?l "\\[\\[" "\\]\\]"))
+  )
 
 ;; vim-like historical locate navigation
 (use-package backward-forward
@@ -992,14 +1006,15 @@
      '("Q" . meow-goto-line)
      '("r" . meow-replace)
      '("R" . repeat)
-     '("s" . meow-kill)
-     '("S" . embrace-commander)
+     ;; '("s" . meow-meow)
+     '("s" . embrace-commander)
      '("t" . meow-till)
      '("u" . meow-undo)
      '("U" . undo-redo)
      '("C-r" . undo-redo)
-     '("v" . meow-visit)
-     '("V" . er/expand-region)
+     ;; '("v" . meow-visit)
+     '("v" . er/expand-region)
+     '("V" . er/contract-region)
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
@@ -1014,8 +1029,12 @@
      '("C-d" . ccm-scroll-up)
      '("C-o" . my/backward-forward-previous-location)
      '("<C-i>" . my/backward-forward-next-location)
+     '("C-j" . move-or-create-window-below)
+     '("C-k" . move-or-create-window-above)
+     '("DEL" . move-or-create-window-left) ; C-h translated to DEL
+     '("C-l" . move-or-create-window-right)
      '("C-f" . consult-line)
-     '("C-t" . burly-perspective-init-project-persp)
+     ;; '("C-t" . burly-perspective-init-project-persp)
      '("C-s" . save-buffer)
      '("C-w" . meow-close-window-or-buffer)
      ;;  (cons "S-SPC" kurumi-utility-map)
@@ -1036,6 +1055,7 @@
   :hook
   (meow-insert-exit . (lambda nil (deactivate-input-method)))
   (meow-insert-exit . (lambda nil (call-interactively 'corfu-quit)))
+  (meow-insert-exit . (lambda nil (key-chord-mode 1)))
   :config
   (setq meow-use-clipboard t
 	meow-keypad-self-insert-undefined nil
@@ -1044,6 +1064,8 @@
 			       (Man-mode . normal)
 			       (eww-mode . normal)
 			       (devdocs-mode . normal)
+			       (howm-menu-mode . motion)
+			       (howm-view-summary-mode . motion)
 			       (vterm-mode . insert)
 			       (eshell-mode . insert))
 	meow--kbd-forward-char "<right>"
