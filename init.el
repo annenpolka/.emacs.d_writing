@@ -1096,8 +1096,17 @@
   (forge-add-default-bindings t))
 
 (use-package git-gutter
+  :diminish git-gutter-mode
+  :custom
+  (git-gutter:ask-p nil)
   :init
   (global-git-gutter-mode))
+
+(use-package git-auto-commit-mode
+  :hook
+  (howm-mode . git-auto-commit-mode)
+  :custom
+  (gac-silent-message-p t))
 
 ;; ==============================
 ;; notetaking/writing
