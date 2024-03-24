@@ -288,8 +288,8 @@
   ;; (setq mozc-candidate-style 'popup)
   ;; workaround for win
   (advice-add 'mozc-session-execute-command
-              :after (lambda (&rest args)
-                       (when (eq (nth 0 args) 'CreateSession)
+	      :after (lambda (&rest args)
+		       (when (eq (nth 0 args) 'CreateSession)
                          (mozc-session-sendkey '(Hankaku/Zenkaku))))))
 
 (use-package mozc-im
@@ -465,20 +465,27 @@
 
   (defvar my/bg-color "#232323")
   (set-face-attribute 'whitespace-trailing nil
-                      :background my/bg-color
-                      :foreground "DeepPink"
-                      :underline t)
+		      :background my/bg-color
+		      :foreground "DeepPink"
+		      :underline t)
   (set-face-attribute 'whitespace-tab nil
-                      :background my/bg-color
-                      :foreground "LightSkyBlue"
-                      :underline t)
+		      :background my/bg-color
+		      :foreground "LightSkyBlue"
+		      :underline t)
   (set-face-attribute 'whitespace-space nil
-                      :background my/bg-color
-                      :foreground "GreenYellow"
-                      :weight 'bold)
+		      :background my/bg-color
+		      :foreground "GreenYellow"
+		      :weight 'bold)
   (set-face-attribute 'whitespace-empty nil
-                      :background my/bg-color)
+		      :background my/bg-color)
   )
+
+(use-package moody
+  :config
+  (setq x-underline-at-descent-line t)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
+  (moody-replace-eldoc-minibuffer-message-function))
 
 (use-package highlight-indent-guides
   :hook ((prog-mode . highlight-indent-guides-mode)
@@ -536,7 +543,7 @@
 	markdown-list-indent-width 4
         markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
-              ("<S-tab>" . markdown-shifttab)))
+	      ("<S-tab>" . markdown-shifttab)))
 ;; ==============================
 ;; minibuffer
 ;; ==============================
@@ -561,7 +568,7 @@
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle))
+	      ("M-A" . marginalia-cycle))
   :init
   (marginalia-mode))
 
@@ -587,7 +594,7 @@
   :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
 		 nil
 		 (window-parameters (mode-line-format . none)))))
 
@@ -698,11 +705,11 @@
   (defun my/set-super-capf (&optional arg)
     (setq-local completion-at-point-functions
                 (list (cape-capf-noninterruptible
-                       (cape-capf-buster
+		       (cape-capf-buster
                         (cape-capf-properties
                          (cape-capf-super
                           (if arg
-                              arg
+			      arg
                             (car completion-at-point-functions))
                           ;; #'tempel-complete
                           ;; #'tabnine-completion-at-point
@@ -811,7 +818,7 @@
   (persp-mode))
 
 (use-package activities
-  :disabled ; HELP: need workaround for persist version dependencies
+  :disabled
   :ensure (activities :host github :repo "alphapapa/activities.el")
   :config
   (activities-mode)
@@ -1146,7 +1153,6 @@
 				(?. . sentence)))
   (meow-setup)
   (meow-global-mode 1))
-
 ;; ==============================
 ;; Git
 ;; ==============================
@@ -1157,8 +1163,9 @@
 	      ("p" . magit-pull)
 	      ("x" . magit-delete-thing)))
 (use-package forge
-  :disabled
   :after magit
+  :disabled
+  ;; :if (unless IS-WINDOWS) ; forge doesn't work on windows
   :custom
   (bug-reference-mode 0)
   (forge-add-default-bindings t))
