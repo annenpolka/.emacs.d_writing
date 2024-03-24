@@ -843,7 +843,20 @@
 (use-package writeroom-mode)
 
 ;; search/narrow
-(use-package consult)
+(use-package consult
+  :init
+  ;; *で始まるバッファ名を候補から削除 -> たとえば*scratch*に変えられない副作用
+  (setq ido-ignore-buffers (append '("\\`\\*") ido-ignore-buffers))
+  
+  :custom
+  (consult-buffer-sources
+   '
+   (
+    ;; persp-consult-source
+    consult--source-buffer
+    consult--source-hidden-buffer
+    consult--source-recent-file))
+  )
 ;; dir extension
 (use-package consult-dir
   :after consult
