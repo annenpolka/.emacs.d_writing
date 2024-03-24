@@ -1181,7 +1181,8 @@
   :hook
   (howm-mode . git-auto-commit-mode)
   :custom
-  (gac-silent-message-p t))
+  (gac-silent-message-p t)
+  (gac-automatically-push-p t))
 
 ;; ==============================
 ;; notetaking/writing
@@ -1190,7 +1191,7 @@
 (use-package howm
   :init
   ;; (define-key global-map [katakana] 'howm-menu) ; [カタカナ] キーでメニュー
-  (setq howm-file-name-format "%Y/%m/%Y_%m_%d.org") ; 1 日 1 ファイル
+  (setq howm-file-name-format "%Y/%m/%Y-%m-%d.md") ; 1 日 1 ファイル
   (setq howm-keyword-case-fold-search t) ; <<< で大文字小文字を区別しない
   (setq howm-list-title t) ; 一覧時にタイトルを表示
   (setq howm-history-file "~/howm/.howm-history")
