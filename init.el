@@ -193,6 +193,13 @@
   :config
   (save-place-mode 1))
 
+;; "revert buffers when files on disk change"
+(use-package autorevert
+  :ensure nil
+  :custom ((auto-revert-interval 1))
+  :init
+  (global-auto-revert-mode 1))
+
 ;; move-or-create-window functions
 (use-package emacs
   :ensure nil
