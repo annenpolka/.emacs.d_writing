@@ -61,7 +61,7 @@
 
 ;; hydra dependency
 (use-package hydra)
-;; (use-package pretty-hydra)
+(use-package pretty-hydra)
 
 
 ;; double-key binding support
@@ -193,6 +193,13 @@
   :config
   (save-place-mode 1))
 
+;; "revert buffers when files on disk change"
+(use-package autorevert
+  :ensure nil
+  :custom ((auto-revert-interval 1))
+  :init
+  (global-auto-revert-mode 1))
+
 ;; move-or-create-window functions
 (use-package emacs
   :ensure nil
@@ -281,8 +288,8 @@
   ;; (setq mozc-candidate-style 'popup)
   ;; workaround for win
   (advice-add 'mozc-session-execute-command
-              :after (lambda (&rest args)
-                       (when (eq (nth 0 args) 'CreateSession)
+	      :after (lambda (&rest args)
+		       (when (eq (nth 0 args) 'CreateSession)
                          (mozc-session-sendkey '(Hankaku/Zenkaku))))))
 
 (use-package mozc-im
@@ -431,6 +438,7 @@
 
 (use-package whitespace
   :ensure nil
+  :diminish whitespace-mode
   :init
   (setq whitespace-style '(face           ; faceで可視化
                            trailing       ; 行末
@@ -457,23 +465,35 @@
 
   (defvar my/bg-color "#232323")
   (set-face-attribute 'whitespace-trailing nil
-                      :background my/bg-color
-                      :foreground "DeepPink"
-                      :underline t)
+		      :background my/bg-color
+		      :foreground "DeepPink"
+		      :underline t)
   (set-face-attribute 'whitespace-tab nil
-                      :background my/bg-color
-                      :foreground "LightSkyBlue"
-                      :underline t)
+		      :background my/bg-color
+		      :foreground "LightSkyBlue"
+		      :underline t)
   (set-face-attribute 'whitespace-space nil
-                      :background my/bg-color
-                      :foreground "GreenYellow"
-                      :weight 'bold)
+		      :background my/bg-color
+		      :foreground "GreenYellow"
+		      :weight 'bold)
   (set-face-attribute 'whitespace-empty nil
-                      :background my/bg-color)
+		      :background my/bg-color)
   )
 
+;; modeline
+(use-package moody
+  :config
+  (setq x-underline-at-descent-line t)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
+  (moody-replace-eldoc-minibuffer-message-function))
+
+;; window highlighting
+(use-package solaire-mode
+  :init
+  (solaire-global-mode))
+
 (use-package highlight-indent-guides
-  :disabled
   :hook ((prog-mode . highlight-indent-guides-mode)
          (yaml-mode . highlight-indent-guides-mode))
   :diminish highlight-indent-guides-mode
@@ -529,7 +549,7 @@
 	markdown-list-indent-width 4
         markdown-indent-on-enter 'indent-and-new-item)
   :bind (:map markdown-mode-map
-              ("<S-tab>" . markdown-shifttab)))
+	      ("<S-tab>" . markdown-shifttab)))
 ;; ==============================
 ;; minibuffer
 ;; ==============================
@@ -554,7 +574,7 @@
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
-              ("M-A" . marginalia-cycle))
+	      ("M-A" . marginalia-cycle))
   :init
   (marginalia-mode))
 
@@ -580,7 +600,7 @@
   :config
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+	       '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
 		 nil
 		 (window-parameters (mode-line-format . none)))))
 
@@ -610,6 +630,12 @@
                                  orderless-regexp
                                  orderless-migemo)))
 
+  (orderless-define-completion-style orderless-fuzzy-style
+    (orderless-matching-styles '(orderless-initialism
+				 orderless-literal
+				 orderless-flex
+                                 orderless-regexp
+                                 orderless-migemo)))
   (setq completion-category-overrides
         '((command (styles orderless-default-style))
           (file (styles orderless-migemo-style))
@@ -618,13 +644,16 @@
           (consult-location (styles orderless-migemo-style)) ; category `consult-location' は `consult-line' などに使われる
           (consult-multi (styles orderless-migemo-style)) ; category `consult-multi' は `consult-buffer' などに使われる
           (org-roam-node (styles orderless-migemo-style)) ; category `org-roam-node' は `org-roam-node-find' で使われる
+          (howm-fuzzy (styles orderless-fuzzy-style))
           (unicode-name (styles orderless-migemo-style))
           (variable (styles orderless-default-style))))
 
+  ;;
+  (add-to-list 'marginalia-prompt-categories '("\\<Keyword\\>" . howm-fuzzy))
   ;; (setq orderless-matching-styles '(orderless-literal orderless-regexp orderless-migemo))
   :custom
   (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  )
 
 ;; ==============================
 ;; suggestion/autocompletion
@@ -682,11 +711,11 @@
   (defun my/set-super-capf (&optional arg)
     (setq-local completion-at-point-functions
                 (list (cape-capf-noninterruptible
-                       (cape-capf-buster
+		       (cape-capf-buster
                         (cape-capf-properties
                          (cape-capf-super
                           (if arg
-                              arg
+			      arg
                             (car completion-at-point-functions))
                           ;; #'tempel-complete
                           ;; #'tabnine-completion-at-point
@@ -711,6 +740,17 @@
   ;;(add-to-list 'completion-at-point-functions #'cape-elisp-symbol)
   ;;(add-to-list 'completion-at-point-functions #'cape-line)
   )
+(use-package prescient
+  :config
+  (setq prescient-aggressive-file-save t)
+  (prescient-persist-mode +1))
+
+(use-package corfu-prescient
+  :after corfu
+  :config
+  (with-eval-after-load 'orderless
+    (setq corfu-prescient-enable-filtering nil))
+  (corfu-prescient-mode +1))
 
 ;; ==============================
 ;; Linting/Formatting
@@ -718,12 +758,33 @@
 
 ;; formatter
 (use-package apheleia
+  :diminish apheleia-mode
   :config
   (apheleia-global-mode t))
 
 ;; ==============================
 ;; Editor
 ;; ==============================
+
+;; save on idle
+(use-package super-save
+  :diminish super-save-mode
+  :custom
+  (super-save-auto-save-when-idle t)
+  :config
+  ;; add integration with ace-window
+  (add-to-list 'super-save-triggers 'ace-window)
+  ;; save on find-file
+  (add-to-list 'super-save-hook-triggers 'find-file-hook)
+  (super-save-mode +1))
+
+;; show key guides
+(use-package which-key
+  :diminish which-key-mode
+  :custom (which-key-idle-delay 0.25)
+  :config
+  (which-key-setup-side-window-right-bottom)
+  (which-key-mode t))
 
 ;; restore window layout
 (use-package winner
@@ -739,8 +800,9 @@
 
 ;; zoom focused window
 (use-package zoom
+  :diminish
   :config
-  (setq zoom-size '(0.618 . 0.618)
+  (setq zoom-size '(0.525 . 0.525)
         zoom-ignored-major-modes '(dirvish-mode))
   (zoom-mode 1))
 
@@ -754,8 +816,16 @@
   (add-to-list 'ccm-ignored-commands 'vterm--self-insert))
 
 ;; workspace
+(use-package perspective
+  :bind
+  ;; ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
+  :custom
+  (persp-mode-prefix-key (kbd "C-c p"))  ; pick your own prefix key here
+  :init
+  (persp-mode))
+
 (use-package activities
-  :disabled ; HELP: need workaround for persist version dependencies
+  :disabled
   :ensure (activities :host github :repo "alphapapa/activities.el")
   :config
   (activities-mode)
@@ -780,7 +850,20 @@
 (use-package writeroom-mode)
 
 ;; search/narrow
-(use-package consult)
+(use-package consult
+  :init
+  ;; *で始まるバッファ名を候補から削除 -> たとえば*scratch*に変えられない副作用
+  (setq ido-ignore-buffers (append '("\\`\\*") ido-ignore-buffers))
+
+  :custom
+  (consult-buffer-sources
+   '
+   (
+    ;; persp-consult-source
+    consult--source-buffer
+    consult--source-hidden-buffer
+    consult--source-recent-file))
+  )
 ;; dir extension
 (use-package consult-dir
   :after consult
@@ -816,13 +899,17 @@
   ([remap undo] . undo-fu-only-undo)
   ([remap redo] . undo-fu-only-redo))
 (use-package undo-fu-session
-  ;; :disabled t ; HELP: too slow on save
+  :disabled t ; HELP: too slow on save
   :ensure t
   :config
   (global-undo-fu-session-mode 1))
 
 ;; better surround
-(use-package embrace)
+(use-package embrace
+  :config
+  ;; wikilink
+  (lambda nil (embrace-add-pair ?l "\\[\\[" "\\]\\]"))
+  )
 
 ;; vim-like historical locate navigation
 (use-package backward-forward
@@ -992,14 +1079,15 @@
      '("Q" . meow-goto-line)
      '("r" . meow-replace)
      '("R" . repeat)
-     '("s" . meow-kill)
-     '("S" . embrace-commander)
+     ;; '("s" . meow-meow)
+     '("s" . embrace-commander)
      '("t" . meow-till)
      '("u" . meow-undo)
      '("U" . undo-redo)
      '("C-r" . undo-redo)
-     '("v" . meow-visit)
-     '("V" . er/expand-region)
+     ;; '("v" . meow-visit)
+     '("v" . er/expand-region)
+     '("V" . er/contract-region)
      '("w" . meow-mark-word)
      '("W" . meow-mark-symbol)
      '("x" . meow-line)
@@ -1014,8 +1102,12 @@
      '("C-d" . ccm-scroll-up)
      '("C-o" . my/backward-forward-previous-location)
      '("<C-i>" . my/backward-forward-next-location)
+     '("C-j" . move-or-create-window-below)
+     '("C-k" . move-or-create-window-above)
+     '("DEL" . move-or-create-window-left) ; C-h translated to DEL
+     '("C-l" . move-or-create-window-right)
      '("C-f" . consult-line)
-     '("C-t" . burly-perspective-init-project-persp)
+     ;; '("C-t" . burly-perspective-init-project-persp)
      '("C-s" . save-buffer)
      '("C-w" . meow-close-window-or-buffer)
      ;;  (cons "S-SPC" kurumi-utility-map)
@@ -1036,6 +1128,7 @@
   :hook
   (meow-insert-exit . (lambda nil (deactivate-input-method)))
   (meow-insert-exit . (lambda nil (call-interactively 'corfu-quit)))
+  (meow-insert-exit . (lambda nil (key-chord-mode 1)))
   :config
   (setq meow-use-clipboard t
 	meow-keypad-self-insert-undefined nil
@@ -1044,6 +1137,8 @@
 			       (Man-mode . normal)
 			       (eww-mode . normal)
 			       (devdocs-mode . normal)
+			       (howm-menu-mode . motion)
+			       (howm-view-summary-mode . motion)
 			       (vterm-mode . insert)
 			       (eshell-mode . insert))
 	meow--kbd-forward-char "<right>"
@@ -1078,7 +1173,6 @@
 				(?. . sentence)))
   (meow-setup)
   (meow-global-mode 1))
-
 ;; ==============================
 ;; Git
 ;; ==============================
@@ -1089,15 +1183,26 @@
 	      ("p" . magit-pull)
 	      ("x" . magit-delete-thing)))
 (use-package forge
-  :disabled
   :after magit
+  :disabled
+  ;; :if (unless IS-WINDOWS) ; forge doesn't work on windows
   :custom
   (bug-reference-mode 0)
   (forge-add-default-bindings t))
 
 (use-package git-gutter
+  :diminish git-gutter-mode
+  :custom
+  (git-gutter:ask-p nil)
   :init
   (global-git-gutter-mode))
+
+(use-package git-auto-commit-mode
+  :hook
+  (howm-mode . git-auto-commit-mode)
+  :custom
+  (gac-silent-message-p t)
+  (gac-automatically-push-p t))
 
 ;; ==============================
 ;; notetaking/writing
@@ -1106,7 +1211,7 @@
   (use-package howm
   :init
   ;; (define-key global-map [katakana] 'howm-menu) ; [カタカナ] キーでメニュー
-  (setq howm-file-name-format "%Y/%m/%Y_%m_%d.org") ; 1 日 1 ファイル
+  (setq howm-file-name-format "%Y/%m/%Y-%m-%d.md") ; 1 日 1 ファイル
   (setq howm-keyword-case-fold-search t) ; <<< で大文字小文字を区別しない
   (setq howm-list-title t) ; 一覧時にタイトルを表示
   (setq howm-history-file "~/howm/.howm-history")
@@ -1131,10 +1236,14 @@
   )
 
 ;; ==============================
-;; External Services
+;; External Services/Integrations
 ;; ==============================
 
+(use-package atomic-chrome
+  :config
+  (atomic-chrome-start-server))
 
 ;;End;
 
 
+(put 'howm-narrow-to-memo 'disabled nil)
