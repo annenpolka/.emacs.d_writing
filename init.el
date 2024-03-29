@@ -480,12 +480,18 @@
 		      :background my/bg-color)
   )
 
+;; modeline
 (use-package moody
   :config
   (setq x-underline-at-descent-line t)
   (moody-replace-mode-line-buffer-identification)
   (moody-replace-vc-mode)
   (moody-replace-eldoc-minibuffer-message-function))
+
+;; window highlighting
+(use-package solaire-mode
+  :init
+  (solaire-global-mode))
 
 (use-package highlight-indent-guides
   :hook ((prog-mode . highlight-indent-guides-mode)
@@ -794,6 +800,7 @@
 
 ;; zoom focused window
 (use-package zoom
+  :diminish
   :config
   (setq zoom-size '(0.525 . 0.525)
         zoom-ignored-major-modes '(dirvish-mode))
@@ -1243,3 +1250,4 @@
 ;;End;
 
 
+(put 'howm-narrow-to-memo 'disabled nil)
