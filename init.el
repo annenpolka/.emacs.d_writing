@@ -61,7 +61,7 @@
 
 ;; hydra dependency
 (use-package hydra)
-(use-package pretty-hydra)
+;; (use-package pretty-hydra)
 
 
 ;; double-key binding support
@@ -1103,7 +1103,7 @@
 ;; notetaking/writing
 ;; ==============================
 
-(use-package howm
+  (use-package howm
   :init
   ;; (define-key global-map [katakana] 'howm-menu) ; [カタカナ] キーでメニュー
   (setq howm-file-name-format "%Y/%m/%Y_%m_%d.org") ; 1 日 1 ファイル
@@ -1114,7 +1114,7 @@
   ;; (setq howm-menu-refresh-after-save nil) ; save 時にメニューを自動更新せず
   ;; (setq howm-refresh-after-save nil) ; save 時に下線を引き直さない
   ;; (setq howm-menu-expiry-hours 2) ; メニューを 2 時間キャッシュ
-  
+
   ;; Use ripgrep as grep
   (setq howm-view-use-grep t)
   (setq howm-view-grep-command "rg")
@@ -1123,7 +1123,7 @@
   (setq howm-view-grep-fixed-option "-F")
   (setq howm-view-grep-expr-option nil)
   (setq howm-view-grep-file-stdin-option nil)
-  
+
   :config
   (define-key howm-menu-mode-map "\C-h" nil)
   (define-key riffle-summary-mode-map "\C-h" nil)
