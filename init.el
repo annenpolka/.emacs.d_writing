@@ -138,7 +138,7 @@
         user-login-name "annenpolka"
         default-directory "~/"
         backup-directory-alist '((".*" . "~/.backup"))
-	auth-sources '("~/.authinfo.gpg" "~/.netrc")
+	;; auth-sources '("~/.authinfo.gpg" "~/.netrc")
         create-lockfiles nil
         debug-on-error nil
         init-file-debug nil
@@ -305,17 +305,6 @@
   :bind*
   ("C-j" . mozc-temp-convert-dwim)
   :after mozc)
-
-;; gpt-based ime
-;; (use-package sumibi
-;;   :custom
-;;   (sumibi-current-model "gpt-4-1106-preview")
-;;   (sumibi-model-list '("gpt-3.5-turbo" "gpt-4-1106-preview"))
-;;   :init
-;;   (setq emacs-minor-version 1)
-;;   (setenv "OPENAI_API_KEY" (my-get-auth-info "api.openai.com" :secret))
-;;   :config
-;;   (global-sumibi-mode 1))
 
 ;; romaji library
 (use-package migemo
