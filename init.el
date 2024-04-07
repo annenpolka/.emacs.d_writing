@@ -138,6 +138,7 @@
         user-login-name "annenpolka"
         default-directory "~/"
         backup-directory-alist '((".*" . "~/.backup"))
+	auth-sources '("~/.authinfo.gpg" "~/.netrc")
         create-lockfiles nil
         debug-on-error nil
         init-file-debug nil
