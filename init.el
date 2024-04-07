@@ -619,7 +619,7 @@
 				 orderless-literal
                                  orderless-regexp
                                  orderless-migemo)))
-  
+
   (orderless-define-completion-style orderless-fuzzy-style
     (orderless-matching-styles '(orderless-initialism
 				 orderless-literal
@@ -844,7 +844,7 @@
   :init
   ;; *で始まるバッファ名を候補から削除 -> たとえば*scratch*に変えられない副作用
   (setq ido-ignore-buffers (append '("\\`\\*") ido-ignore-buffers))
-  
+
   :custom
   (consult-buffer-sources
    '
@@ -1209,11 +1209,7 @@
   ;; (setq howm-menu-refresh-after-save nil) ; save 時にメニューを自動更新せず
   ;; (setq howm-refresh-after-save nil) ; save 時に下線を引き直さない
   ;; (setq howm-menu-expiry-hours 2) ; メニューを 2 時間キャッシュ
-  
-  ;; hide howm-related mode buffers
-  (setq howm-view-summary-name " *howmS*")
-  (setq howm-view-contents-name " *howmC*")
-  
+
   ;; Use ripgrep as grep
   (setq howm-view-use-grep t)
   (setq howm-view-grep-command "rg")
