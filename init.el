@@ -1280,6 +1280,10 @@
   :config
   (atomic-chrome-start-server))
 
+(use-package gptel
+  :init
+  (setq gptel-api-key (auth-source-pick-first-password :host "api.openai.com")))
+
 ;;End;
 
 
