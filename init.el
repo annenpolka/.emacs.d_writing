@@ -1222,12 +1222,55 @@
   (setq howm-view-grep-fixed-option "-F")
   (setq howm-view-grep-expr-option nil)
   (setq howm-view-grep-file-stdin-option nil)
-  
+  ;; keymap
+  (setq howm-default-key-table
+	'(
+	  ;; ("key" func list-mode-p global-p)
+	  ("r" howm-refresh)
+	  ("l" howm-list-recent t t)
+	  ("a" howm-list-all t t)
+	  ("g" howm-list-grep t t)
+	  ("s" howm-list-grep-fixed t t)
+	  ("m" howm-list-migemo t t)
+	  ("t" howm-list-todo t t)
+	  ("y" howm-list-schedule t t)
+	  ("b" howm-list-buffers t t)
+	  ("x" howm-list-mark-ring t t)
+	  ("o" howm-occur t t)
+	  ("c" howm-create t t)
+	  ("e" howm-remember t t)
+	  ("," howm-menu t t)
+	  ("." howm-find-today nil t)
+	  (":" howm-find-yesterday nil t)
+	  ("A" howm-list-around)
+	  ("h" howm-history nil t)
+	  ("D" howm-dup)
+	  ("i" howm-insert-keyword nil t)
+	  ("d" howm-insert-date nil t)
+	  ("T" howm-insert-dtime nil t)
+	  ("K" howm-keyword-to-kill-ring t t)
+	  ("n" action-lock-goto-next-link)
+	  ("p" action-lock-goto-previous-link)
+	  ("Q" howm-kill-all t t)
+	  (" " howm-toggle-buffer nil t)
+	  ("N" howm-next-memo)
+	  ("p" howm-previous-memo)
+	  ("P" howm-previous-memo)
+	  ("H" howm-first-memo)
+	  ("L" howm-last-memo)
+	  ("C" howm-create-here nil t)
+	  ("I" howm-create-interactively nil t)
+	  ("w" howm-random-walk nil t)
+	  ("M" howm-open-named-file t t)
+	  )
+	)
   :config
+  ;; remove some default behaviours on howm-related modes
   (define-key howm-menu-mode-map "\C-h" nil)
   (define-key riffle-summary-mode-map "\C-h" nil)
   (define-key howm-view-contents-mode-map "\C-h" nil)
   )
+
 
 ;; ==============================
 ;; External Services/Integrations
