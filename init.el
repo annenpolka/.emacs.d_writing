@@ -1205,11 +1205,13 @@
   (setq howm-file-name-format "%Y/%m/%Y-%m-%d.md") ; 1 日 1 ファイル
   (setq howm-keyword-case-fold-search t) ; <<< で大文字小文字を区別しない
   (setq howm-list-title t) ; 一覧時にタイトルを表示
+  (setq howm-directory "~/howm/")
   (setq howm-history-file "~/howm/.howm-history")
   (setq howm-keyword-file "~/howm/.howm-keys")
-  ;; (setq howm-menu-refresh-after-save nil) ; save 時にメニューを自動更新せず
-  ;; (setq howm-refresh-after-save nil) ; save 時に下線を引き直さない
-  ;; (setq howm-menu-expiry-hours 2) ; メニューを 2 時間キャッシュ
+  ;; (setq howm-menu-refresh-after-save nil) ; save 時にメニューを自動
+  ;; 更新せず(setq howm-refresh-after-save nil) ; save 時に下線を引き
+  ;; 直さない(setq howm-menu-expiry-hours 2) ; メニューを 2 時間キャッ
+  ;; シュ
 
   ;; Use ripgrep as grep
   (setq howm-view-use-grep t)
@@ -1219,6 +1221,14 @@
   (setq howm-view-grep-fixed-option "-F")
   (setq howm-view-grep-expr-option nil)
   (setq howm-view-grep-file-stdin-option nil)
+  ;; git pull remote's howm 
+  (defun howm-pull-origin ()
+    "Pull howm repository remote origin."
+    (interactive)
+    (let ((default-directory howm-directory) ; 固定のディレクトリを設定
+          (display-buffer-alist
+           '(("\\*Git Pull Output\\*.*" display-buffer-no-window . nil)))) ; git pullのバッファを表示しない
+      (async-shell-command "git pull" "*Git Pull Output*" "*Messages*"))) 
   ;; keymap
   (setq howm-default-key-table
 	'(
@@ -1251,7 +1261,7 @@
 	  ("Q" howm-kill-all t t)
 	  (" " howm-toggle-buffer nil t)
 	  ("N" howm-next-memo)
-	  ("p" howm-previous-memo)
+	  ("p" howm-pull-origin t t)
 	  ("P" howm-previous-memo)
 	  ("H" howm-first-memo)
 	  ("L" howm-last-memo)
