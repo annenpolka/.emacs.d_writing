@@ -801,7 +801,8 @@
   :diminish centered-cursor-mode
   :config
   (global-centered-cursor-mode t)
-  (setq ccm-step-size 2)
+  (setq ccm-step-size 2
+	ccm-recenter-at-end-of-file t)
   ;; exclude on vterm
   (add-to-list 'ccm-ignored-commands 'vterm--self-insert))
 
