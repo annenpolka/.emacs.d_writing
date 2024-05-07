@@ -1,68 +1,37 @@
 ;; Annenpolka init.el -*- lexical-binding: t; -*-
-
 ;; ==============================
-;; Package Management/initialization
+;; General
 ;; ==============================
-;; Install elpaca
-(setq elpaca-core-date '(20240303))
-(setq elpaca-menu-functions '(elpaca-menu-extensions elpaca-menu-gnu-devel-elpa))
+;; package.elでelpa設定
+(require 'package)
+(add-to-list 'package-archives '("gnu-elpa-devel" . "https://elpa.gnu.org/devel/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 
-(defvar elpaca-installer-version 0.7)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
+;; インストールする優先順位を指定
+(setq package-archive-priorities
+      '(("gnu-elpa-devel" . 3)
+        ("melpa" . 2)
+        ("nongnu" . 1)))
+;; package.elのその他オプション
+(setq package-install-upgrade-built-in t ; built-inパッケージも更新対象にする
+      package-native-compile t           ; インストール時にnative compileする
+      )
 
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable :elpaca use-package keyword.
-  (elpaca-use-package-mode)
-  ;; Assume :ensure t unless otherwise specified.
-  (setq use-package-always-ensure t)
-  ;; limit queue number for too many open files error
-  (setq elpaca-queue-limit 10))
-(elpaca-wait)
+;; package manager
+(use-package use-package
+  :config
+  (setq use-package-always-ensure t))
+;; update automatically
+;; (use-package auto-package-update
+;;   :config
+;;   (setq auto-package-update-interval 1)
+;;   (auto-package-update-maybe))
 
-;; :diminish support
+; :diminish support
 (use-package diminish)
 
 ;; hydra dependency
 (use-package hydra)
-(use-package pretty-hydra)
-
 
 ;; double-key binding support
 (use-package key-chord
@@ -80,43 +49,6 @@
         (expand-file-name "data/" user-emacs-directory))
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t))))
-(elpaca-wait)
-
-(defun install-package-with-scoop (command package bucket)
-  "コマンドがシステムに存在しない場合に、Scoopを使って指定したPACKAGEをインストールする。必要ならBUCKETを追加する。"
-  (when IS-WINDOWS
-    (unless (executable-find command)
-      (let ((search-result (shell-command-to-string (format "scoop search %s" package))))
-        (when (string-match "No matches found" search-result)
-          (shell-command (format "scoop bucket add %s" bucket)))
-        (shell-command (format "scoop install %s" package))))))
-
-(defun get-scoop-app-path (app-name)
-  "Scoopのappsディレクトリで指定されたアプリ名を検証し、存在すればそのパスを返す。"
-  (let* ((scoop-env (getenv "SCOOP"))
-         (scoop-path (if scoop-env scoop-env (expand-file-name "~/scoop")))
-         (app-path (expand-file-name (concat "apps/" app-name) scoop-path)))
-    (when (file-directory-p app-path)
-      app-path)))
-
-(defun my-get-auth-info (service keyword)
-  "特定のサービスに対する認証情報を `auth-source` から取得する関数。
-   もし見つからない場合はユーザーに入力を求め、`auth-sources` に基づいてファイルに書き出す。"
-  (let ((match (car (auth-source-search :host service :require `(,keyword))))
-        (source-file (car auth-sources)))
-    (if match
-        ;; 認証情報が見つかった場合
-        (funcall (plist-get match keyword))
-      ;; 認証情報が見つからなかった場合、ユーザーに入力を求める
-      (let ((new-value (read-passwd (format "Enter your %s for %s: " keyword service))))
-        (when source-file
-          ;; ファイルに書き出す
-          (with-temp-buffer
-            (insert "machine " service " " (substring (symbol-name keyword) 1) " " new-value "\n")
-            (if (string-suffix-p ".gpg" source-file)
-                (epa-encrypt-file (buffer-string) source-file)
-              (append-to-file (point-min) (point-max) source-file))))
-        new-value))))
 
 ;; set builtin configs
 (use-package emacs
@@ -138,7 +70,7 @@
         user-login-name "annenpolka"
         default-directory "~/"
         backup-directory-alist '((".*" . "~/.backup"))
-	;; auth-sources '("~/.authinfo.gpg" "~/.netrc")
+        ;; auth-sources '("~/.authinfo.gpg" "~/.netrc")
         create-lockfiles nil
         debug-on-error nil
         init-file-debug nil
@@ -162,10 +94,14 @@
         show-paren-style 'parenthesis
         show-paren-delay 0
         bookmark-watch-bookmark-file 'silent)
+  ;; Encoding on Windows
   (when IS-WINDOWS
-    ;; use cp932 for windows processes
-    (setq default-process-coding-system '(utf-8-dos . cp932))
-    )
+    ;; shift-jisよりcp932を優先させる
+    (set-coding-system-priority 'utf-8
+                                'euc-jp
+                                'iso-2022-jp
+                                'cp932)
+    (setq-default default-process-coding-system '(utf-8-unix . japanese-cp932-dos)))
   )
 
 (use-package recentf
@@ -249,6 +185,42 @@
         gcmh-idle-delay 'auto  ; default is 15s
         gcmh-auto-idle-delay-factor 10
         gcmh-high-cons-threshold (* 16 1024 1024)))  ; 16mb
+
+(defun install-package-with-scoop (command package bucket)
+  "コマンドがシステムに存在しない場合に、Scoopを使って指定したPACKAGEをインストールする。必要ならBUCKETを追加する。"
+  (when IS-WINDOWS
+    (unless (executable-find command)
+      (let ((search-result (shell-command-to-string (format "scoop search %s" package))))
+        (when (string-match "No matches found" search-result)
+          (shell-command (format "scoop bucket add %s" bucket)))
+        (shell-command (format "scoop install %s" package))))))
+
+(defun get-scoop-app-path (app-name)
+  "Scoopのappsディレクトリで指定されたアプリ名を検証し、存在すればそのパスを返す。"
+  (let* ((scoop-env (getenv "SCOOP"))
+         (scoop-path (if scoop-env scoop-env (expand-file-name "~/scoop")))
+         (app-path (expand-file-name (concat "apps/" app-name) scoop-path)))
+    (when (file-directory-p app-path)
+      app-path)))
+
+(defun my-get-auth-info (service keyword)
+  "特定のサービスに対する認証情報を `auth-source` から取得する関数。
+   もし見つからない場合はユーザーに入力を求め、`auth-sources` に基づいてファイルに書き出す。"
+  (let ((match (car (auth-source-search :host service :require `(,keyword))))
+        (source-file (car auth-sources)))
+    (if match
+        ;; 認証情報が見つかった場合
+        (funcall (plist-get match keyword))
+      ;; 認証情報が見つからなかった場合、ユーザーに入力を求める
+      (let ((new-value (read-passwd (format "Enter your %s for %s: " keyword service))))
+        (when source-file
+          ;; ファイルに書き出す
+          (with-temp-buffer
+            (insert "machine " service " " (substring (symbol-name keyword) 1) " " new-value "\n")
+            (if (string-suffix-p ".gpg" source-file)
+                (epa-encrypt-file (buffer-string) source-file)
+              (append-to-file (point-min) (point-max) source-file))))
+        new-value))))
 
 ;; ==============================
 ;; IME
@@ -1221,14 +1193,14 @@
   (setq howm-view-grep-fixed-option "-F")
   (setq howm-view-grep-expr-option nil)
   (setq howm-view-grep-file-stdin-option nil)
-  ;; git pull remote's howm 
+  ;; git pull remote's howm
   (defun howm-pull-origin ()
     "Pull howm repository remote origin."
     (interactive)
     (let ((default-directory howm-directory) ; 固定のディレクトリを設定
           (display-buffer-alist
            '(("\\*Git Pull Output\\*.*" display-buffer-no-window . nil)))) ; git pullのバッファを表示しない
-      (async-shell-command "git pull" "*Git Pull Output*" "*Messages*"))) 
+      (async-shell-command "git pull" "*Git Pull Output*" "*Messages*")))
   ;; keymap
   (setq howm-default-key-table
 	'(
@@ -1295,3 +1267,15 @@
 
 
 (put 'howm-narrow-to-memo 'disabled nil)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
